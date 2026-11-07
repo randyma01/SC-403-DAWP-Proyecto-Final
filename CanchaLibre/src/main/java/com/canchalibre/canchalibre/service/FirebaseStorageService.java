@@ -12,16 +12,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-// @Service // Descomentar cuando se configure la conexión y credenciales de Firebase en StorageConfig
+@Service
 public class FirebaseStorageService {
 
-    @Value("${firebase.bucket.name:}")
+    @Value("${firebase.bucket.name}")
     private String bucketName;
 
-    @Value("${firebase.storage.path:}")
+    @Value("${firebase.storage.path}")
     private String storagePath;
 
-    // Inyección opcional o directa cuando se configure StorageConfig
     private final Storage storage;
 
     public FirebaseStorageService(Storage storage) {

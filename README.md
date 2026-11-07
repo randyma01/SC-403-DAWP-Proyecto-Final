@@ -3,21 +3,24 @@
 > **Plataforma Web Transaccional para la Gestión y Reserva de Espacios Deportivos**  
 > Proyecto final para el curso **[SC-403] Desarrollo de Aplicaciones Web y Patrones (DAWP)** — Universidad Fidélitas.
 
+[![Figma Design](https://img.shields.io/badge/Figma-Prototipo%20UI%2FUX-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/0ImmhwST9yGAwPojsJ69CA/-Design----SC-403---Proyecto-Final?node-id=0-1&t=5YaBE4hTMfCqLvTM-1)
+
 ---
 
 ## 📌 Tabla de Contenidos
 1. [Descripción del Proyecto](#-descripción-del-proyecto)
 2. [Integrantes del Equipo](#-integrantes-del-equipo)
 3. [Características Principales](#-características-principales)
-4. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-5. [Stack Tecnológico](#-stack-tecnológico)
-6. [Estructura del Repositorio](#-estructura-del-repositorio)
-7. [Requisitos Previos](#-requisitos-previos)
-8. [Instalación y Puesta en Marcha](#-instalación-y-puesta-en-marcha)
-9. [Configuración y Variables](#-configuración-y-variables)
-10. [Documentación y Entregables](#-documentación-y-entregables)
-11. [Flujo de Trabajo y Ramas](#-flujo-de-trabajo-y-ramas)
-12. [Licencia y Contexto Académico](#-licencia-y-contexto-académico)
+4. [Diseño y Prototipos UI](#-diseño-y-prototipos-ui)
+5. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+6. [Stack Tecnológico](#-stack-tecnológico)
+7. [Estructura del Repositorio](#-estructura-del-repositorio)
+8. [Requisitos Previos](#-requisitos-previos)
+9. [Instalación y Puesta en Marcha](#-instalación-y-puesta-en-marcha)
+10. [Configuración y Variables](#-configuración-y-variables)
+11. [Documentación y Entregables](#-documentación-y-entregables)
+12. [Flujo de Trabajo y Ramas](#-flujo-de-trabajo-y-ramas)
+13. [Licencia y Contexto Académico](#-licencia-y-contexto-académico)
 
 ---
 
@@ -48,6 +51,28 @@
 * **Módulo de Comprobantes de Pago**: Carga digital de referencias bancarias con validación administrativa (*Pendiente*, *Aprobada*, *Rechazada*).
 * **Internacionalización (i18n)**: Soporte multi-idioma mediante plantillas y archivos `messages.properties`.
 * **Diseño Responsivo**: Experiencia fluida en dispositivos móviles y de escritorio mediante componentes Bootstrap estandarizados vía WebJars.
+
+---
+
+## 🎨 Diseño y Prototipos UI
+
+El diseño visual y la experiencia de usuario (UI/UX) fueron creados y maquetados en **Figma**, abarcando las 7 vistas del ciclo transaccional:
+
+🔗 **[Abrir Prototipo Interactivo en Figma](https://www.figma.com/design/0ImmhwST9yGAwPojsJ69CA/-Design----SC-403---Proyecto-Final?node-id=0-1&t=5YaBE4hTMfCqLvTM-1)** | 📁 **[Ver galería completa y especificaciones en `docs/design/`](docs/design/)**
+
+| 1. Exploración de Complejos | 2. Detalle y Ficha Técnica |
+| :---: | :---: |
+| ![Exploración](docs/design/01_exploracion_complejos.png) | ![Detalle](docs/design/02_detalle_complejo.png) |
+
+| 3. Selección de Fecha y Franja Horaria | 4. Insumos y Desglose Tarifario |
+| :---: | :---: |
+| ![Disponibilidad](docs/design/03_disponibilidad_fecha_hora.png) | ![Insumos](docs/design/04_insumos_cotizacion.png) |
+
+| 5. Reserva y Carga de Comprobante | 6. Panel de Validación del Administrador |
+| :---: | :---: |
+| ![Reserva y Pago](docs/design/05_reserva_y_pago.png) | ![Panel Administrador](docs/design/07_panel_administrador.png) |
+
+> Consulta la pantalla de historial del usuario y detalles ampliados en la [galería completa de diseño](docs/design/README.md).
 
 ---
 
@@ -122,6 +147,7 @@ SC-403-DAWP-Proyecto-Final/
 │   │   └── test/                     # Pruebas unitarias y de integración
 │   └── pom.xml                       # Descriptor de dependencias Maven
 ├── docs/                             # Documentación formal del curso
+│   ├── design/                       # Prototipos visuales y especificaciones de Figma
 │   ├── instructions/                 # Enunciado y rúbricas de avances
 │   └── work/                         # Entregables del equipo (Avance 1, etc.)
 ├── .gitignore                        # Exclusiones de Git (NetBeans, temporales y secretos)
@@ -172,6 +198,7 @@ Por motivos de seguridad, las credenciales privadas y claves de servicio **no se
 
 Toda la evidencia y documentación se gestiona dentro del directorio [`docs/`](docs/):
 * **Avance 1**: Especificación de requisitos, 20+ historias de usuario y prototipos de interfaz ([`docs/work/SC403_Avance-1_Grupo16.pdf`](docs/work/SC403_Avance-1_Grupo16.pdf)).
+* **Diseño UI/UX (Figma)**: Galería de pantallas del flujo de usuario ([`docs/design/`](docs/design/)).
 * **Enunciado del Proyecto**: Requerimientos técnicos y rúbrica evaluativa ([`docs/instructions/EnunciadoDelProyecto.pdf`](docs/instructions/EnunciadoDelProyecto.pdf)).
 
 ---

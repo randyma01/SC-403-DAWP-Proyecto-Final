@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice">
+<defs>
+<radialGradient id="glow"><stop offset="0" stop-color="#fffbd0" stop-opacity="0.95"/><stop offset="1" stop-color="#fffbd0" stop-opacity="0"/></radialGradient>
+<linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a3c"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="600" height="400" fill="#2f8f46"/>
+<rect x="40" y="30" width="520" height="340" fill="none" stroke="#ffffff" stroke-width="3" />
+<line x1="300" y1="30" x2="300" y2="370" stroke="#fff" stroke-width="3"/>
+<circle cx="300" cy="200" r="48" fill="none" stroke="#ffffff" stroke-width="3" /><circle cx="300" cy="200" r="4" fill="#fff"/>
+<rect x="40" y="120" width="70" height="160" fill="none" stroke="#ffffff" stroke-width="3" /><rect x="490" y="120" width="70" height="160" fill="none" stroke="#ffffff" stroke-width="3" />
+<rect x="40" y="160" width="26" height="80" fill="none" stroke="#ffffff" stroke-width="3" /><rect x="534" y="160" width="26" height="80" fill="none" stroke="#ffffff" stroke-width="3" />
+<rect x="40" y="30" width="52" height="340" fill="#000" opacity="0.05"/><rect x="144" y="30" width="52" height="340" fill="#000" opacity="0.05"/><rect x="248" y="30" width="52" height="340" fill="#000" opacity="0.05"/><rect x="352" y="30" width="52" height="340" fill="#000" opacity="0.05"/><rect x="456" y="30" width="52" height="340" fill="#000" opacity="0.05"/>
+
+</svg>

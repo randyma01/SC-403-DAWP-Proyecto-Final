@@ -3,17 +3,18 @@ package com.canchalibre.canchalibre.service;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+/** Almacenamiento en Firebase Storage (Google Cloud Storage). Activo con app.storage.provider=firebase. */
 @Service
-public class FirebaseStorageService {
+@ConditionalOnProperty(name = "app.storage.provider", havingValue = "firebase", matchIfMissing = true)
+public class FirebaseStorageService implements ArchivoService {
 
     @Value("${firebase.bucket.name}")
     private String bucketName;
@@ -27,54 +28,34 @@ public class FirebaseStorageService {
         this.storage = storage;
     }
 
-    /**
-     * Sube un archivo de imagen al almacenamiento de Firebase.
-     */
+    /** Compatibilidad con la configuracion inicial del proyecto. */
     public String uploadImage(MultipartFile localFile, String folder, Integer id) throws IOException {
-        String originalName = localFile.getOriginalFilename();
-        String fileExtension = "";
-        if (originalName != null && originalName.contains(".")) {
-            fileExtension = originalName.substring(originalName.lastIndexOf("."));
-        }
-
-        String fileName = "img" + getFormattedNumber(id) + fileExtension;
-        File tempFile = convertToFile(localFile);
-
-        try {
-            return uploadToFirebase(tempFile, folder, fileName);
-        } finally {
-            if (tempFile.exists()) {
-                tempFile.delete();
-            }
-        }
+        return subir(localFile, folder, id == null ? 0L : id.longValue());
     }
 
-    /**
-     * Convierte un MultipartFile a un archivo temporal en el servidor.
-     */
-    private File convertToFile(MultipartFile multipartFile) throws IOException {
-        File tempFile = File.createTempFile("upload-", ".tmp");
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            fos.write(multipartFile.getBytes());
-        }
-        return tempFile;
-    }
+    @Override
+    public String subir(MultipartFile archivo, String carpeta, long id) throws IOException {
+        String fileName = "img" + getFormattedNumber(id) + extension(archivo.getOriginalFilename());
+        String mimeType = archivo.getContentType() != null ? archivo.getContentType() : "application/octet-stream";
 
-    /**
-     * Sube el archivo al almacenamiento de Firebase y genera una URL firmada válida por 5 años.
-     */
-    private String uploadToFirebase(File file, String folder, String fileName) throws IOException {
-        BlobId blobId = BlobId.of(bucketName, storagePath + "/" + folder + "/" + fileName);
-        String mimeType = Files.probeContentType(file.toPath());
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(mimeType != null ? mimeType : "image/jpeg").build();
+        BlobId blobId = BlobId.of(bucketName, storagePath + "/" + carpeta + "/" + fileName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(mimeType).build();
+        storage.create(blobInfo, archivo.getBytes());
 
-        storage.create(blobInfo, Files.readAllBytes(file.toPath()));
+        // URL firmada valida por 5 anios (se guarda en la base de datos)
         return storage.signUrl(blobInfo, 1825, TimeUnit.DAYS).toString();
     }
 
-    /**
-     * Genera un string numérico con formato de 14 dígitos con ceros a la izquierda.
-     */
+    /** Extension en minusculas y solo alfanumerica (evita caracteres peligrosos en el nombre del objeto). */
+    static String extension(String originalName) {
+        if (originalName == null || !originalName.contains(".")) {
+            return "";
+        }
+        String ext = originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+        return ext.matches("[a-z0-9]{1,5}") ? "." + ext : "";
+    }
+
+    /** Numero de 14 digitos con ceros a la izquierda. */
     private String getFormattedNumber(long id) {
         return String.format("%014d", id);
     }

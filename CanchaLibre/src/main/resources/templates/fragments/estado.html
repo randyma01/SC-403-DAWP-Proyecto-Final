@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Badge de estado de una reserva -->
+<span th:fragment="badge(estado)" class="estado" th:classappend="'estado-' + ${estado.css}"
+      th:text="#{${'reserva.estado.' + estado.name()}}">Estado</span>
+</body>
+</html>

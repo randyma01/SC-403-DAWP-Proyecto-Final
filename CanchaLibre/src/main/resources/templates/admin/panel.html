@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.panel.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('panel')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.panel.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3"><div class="cl-stat verde"><span class="ico"><i class="fa-solid fa-calendar-day"></i></span><div><div class="num" th:text="${stats.reservasHoy}">0</div><div class="small text-muted" th:text="#{admin.stat.hoy}">Reservas hoy</div></div></div></div>
+                <div class="col-6 col-xl-3"><div class="cl-stat naranja"><span class="ico"><i class="fa-solid fa-hourglass-half"></i></span><div><div class="num" th:text="${stats.pendientes}">0</div><div class="small text-muted" th:text="#{admin.stat.pendientes}">Pendientes</div></div></div></div>
+                <div class="col-6 col-xl-3"><div class="cl-stat lima"><span class="ico"><i class="fa-solid fa-circle-check"></i></span><div><div class="num" th:text="${stats.confirmadas}">0</div><div class="small text-muted" th:text="#{admin.stat.confirmadas}">Confirmadas</div></div></div></div>
+                <div class="col-6 col-xl-3"><div class="cl-stat roja"><span class="ico"><i class="fa-solid fa-circle-xmark"></i></span><div><div class="num" th:text="${stats.canceladas}">0</div><div class="small text-muted" th:text="#{admin.stat.canceladas}">Canceladas</div></div></div></div>
+            </div>
+
+            <form class="row g-2 mb-3" th:action="@{/admin}" method="get">
+                <div class="col-md-4"><input type="search" class="form-control" name="q" th:value="${q}" th:placeholder="#{admin.filtro.buscar}"></div>
+                <div class="col-md-3"><select class="form-select" name="estado">
+                    <option value="" th:text="#{admin.filtro.estado.todos}">Todos los estados</option>
+                    <option th:each="e : ${estados}" th:value="${e.name()}" th:text="#{${'reserva.estado.' + e.name()}}" th:selected="${e.name() == estadoSel}">Estado</option></select></div>
+                <div class="col-md-2"><select class="form-select" name="espacioId">
+                    <option value="" th:text="#{admin.filtro.espacio.todos}">Espacios</option>
+                    <option th:each="e : ${espacios}" th:value="${e.id}" th:text="${e.nombre}" th:selected="${e.id == espacioSel}">Cancha</option></select></div>
+                <div class="col-md-2"><input type="date" class="form-control" name="fecha" th:value="${fecha}"></div>
+                <div class="col-md-1 d-grid"><button class="btn btn-cl" type="submit"><i class="fa-solid fa-filter"></i></button></div>
+            </form>
+
+            <div class="row g-3">
+                <div class="col-xl-8">
+                    <div class="cl-tabla">
+                        <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead><tr><th th:text="#{admin.col.codigo}">Codigo</th><th th:text="#{admin.col.cliente}">Cliente</th><th th:text="#{admin.col.espacio}">Espacio</th><th th:text="#{admin.col.fecha}">Fecha</th><th th:text="#{admin.col.total}">Total</th><th th:text="#{admin.col.estado}">Estado</th></tr></thead>
+                            <tbody>
+                            <tr th:each="r : ${reservas.content}" th:classappend="${seleccionada != null and seleccionada.id == r.id} ? 'fila-sel'"
+                                th:attr="data-href=@{/admin(sel=${r.id}, q=${q}, estado=${estadoSel}, espacioId=${espacioSel}, fecha=${fecha}, pagina=${reservas.number})}" style="cursor:pointer">
+                                <td class="fw-medium" th:text="${r.codigo}">CL-0001</td>
+                                <td th:text="${r.usuario.nombreCompleto}">Cliente</td>
+                                <td th:text="${r.espacio.nombre}">Cancha</td>
+                                <td><div class="text-nowrap" th:text="${@fmt.fechaCorta(r.fecha)}">fecha</div><div class="small text-muted" th:text="${@fmt.rango(r.horaInicio, r.horaFin)}">18:00</div></td>
+                                <td th:text="${@fmt.moneda(r.total)}">₡18,500</td>
+                                <td><span th:replace="~{fragments/estado :: badge(${r.estado})}"></span></td>
+                            </tr>
+                            <tr th:if="${reservas.empty}"><td colspan="6" class="text-center text-muted py-4" th:text="#{admin.vacio}">Sin reservas</td></tr>
+                            </tbody>
+                        </table></div>
+                    </div>
+                    <nav class="mt-3" th:if="${reservas.totalPages > 1}"><ul class="pagination pagination-sm">
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, reservas.totalPages - 1)}" th:classappend="${i == reservas.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin(pagina=${i}, q=${q}, estado=${estadoSel}, espacioId=${espacioSel}, fecha=${fecha})}" th:text="${i + 1}">1</a></li>
+                    </ul></nav>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="cl-panel cl-detalle-panel" th:if="${seleccionada == null}">
+                        <p class="text-muted mb-0 text-center py-4"><i class="fa-regular fa-hand-pointer d-block fa-2x mb-2"></i><span th:text="#{admin.detalle.vacio}">Selecciona una reserva para ver su detalle.</span></p>
+                    </div>
+                    <div class="cl-panel cl-detalle-panel" th:if="${seleccionada != null}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div><div class="small text-muted" th:text="#{conf.codigo}">Codigo</div><h2 class="h4 mb-0" th:text="${seleccionada.codigo}">CL-0001</h2></div>
+                            <span th:replace="~{fragments/estado :: badge(${seleccionada.estado})}"></span>
+                        </div>
+                        <hr>
+                        <dl class="row small mb-2">
+                            <dt class="col-4 fw-normal text-muted" th:text="#{admin.col.cliente}">Cliente</dt><dd class="col-8" th:text="${seleccionada.usuario.nombreCompleto}">Cliente</dd>
+                            <dt class="col-4 fw-normal text-muted" th:text="#{registro.email}">Correo</dt><dd class="col-8" th:text="${seleccionada.usuario.email}">correo</dd>
+                            <dt class="col-4 fw-normal text-muted" th:if="${seleccionada.usuario.telefono != null}" th:text="#{registro.telefono}">Telefono</dt><dd class="col-8" th:if="${seleccionada.usuario.telefono != null}" th:text="${seleccionada.usuario.telefono}">tel</dd>
+                            <dt class="col-4 fw-normal text-muted" th:text="#{admin.col.espacio}">Espacio</dt><dd class="col-8" th:text="${seleccionada.espacio.nombre}">Cancha</dd>
+                            <dt class="col-4 fw-normal text-muted" th:text="#{admin.col.fecha}">Fecha</dt><dd class="col-8" th:text="${@fmt.fechaCorta(seleccionada.fecha) + ' ' + @fmt.rango(seleccionada.horaInicio, seleccionada.horaFin)}">fecha</dd>
+                            <dt class="col-4 fw-normal text-muted" th:text="#{pdf.referencia}">Referencia</dt><dd class="col-8" th:text="${seleccionada.referenciaBancaria != null ? seleccionada.referenciaBancaria : '-'}">-</dd>
+                            <dt class="col-4 fw-normal text-muted" th:text="#{admin.col.total}">Total</dt><dd class="col-8 fw-bold" th:text="${@fmt.moneda(seleccionada.total)}">₡18,500</dd>
+                        </dl>
+                        <div class="cl-linea small" th:each="i : ${seleccionada.insumos}"><span th:text="${i.cantidad + ' x ' + i.nombreInsumo}">1 x Balon</span><span th:text="${@fmt.moneda(i.subtotal)}">₡1,000</span></div>
+
+                        <div class="mt-3" th:if="${seleccionada.tieneComprobante}">
+                            <div class="fw-medium small mb-1" th:text="#{detalle.reserva.comprobante}">Comprobante</div>
+                            <a th:href="${seleccionada.comprobanteUrl}" target="_blank" rel="noopener" th:if="${seleccionada.comprobanteEsPdf}"><i class="fa-solid fa-file-pdf me-1"></i><span th:text="${seleccionada.comprobanteNombre}">archivo.pdf</span></a>
+                            <a th:href="${seleccionada.comprobanteUrl}" target="_blank" rel="noopener" th:unless="${seleccionada.comprobanteEsPdf}"><img class="cl-comprobante-img" th:src="${seleccionada.comprobanteUrl}" th:alt="${seleccionada.comprobanteNombre}"></a>
+                        </div>
+                        <div class="text-muted small mt-3" th:unless="${seleccionada.tieneComprobante}" th:text="#{admin.sin.comprobante}">Sin comprobante</div>
+
+                        <div class="alert alert-danger small mt-3 mb-0" th:if="${seleccionada.estado.name() == 'RECHAZADA' and seleccionada.motivoRechazo != null}" th:text="${seleccionada.motivoRechazo}"></div>
+
+                        <div th:if="${seleccionada.estado.name() == 'EN_VERIFICACION'}" class="mt-3">
+                            <form th:action="@{/admin/reservas/{id}/aprobar(id=${seleccionada.id})}" method="post" class="mb-2">
+                                <button class="btn btn-lime w-100" type="submit"><i class="fa-solid fa-check me-1"></i><span th:text="#{admin.aprobar}">Aprobar pago</span></button></form>
+                            <form th:action="@{/admin/reservas/{id}/rechazar(id=${seleccionada.id})}" method="post">
+                                <textarea class="form-control mb-2" name="motivo" rows="2" maxlength="300" required th:placeholder="#{admin.rechazo.motivo}"></textarea>
+                                <button class="btn btn-outline-danger-cl w-100" type="submit"><i class="fa-solid fa-xmark me-1"></i><span th:text="#{admin.rechazar}">Rechazar</span></button></form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

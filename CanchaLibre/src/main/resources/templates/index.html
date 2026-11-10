@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{index.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+
+<section class="cl-hero">
+    <div class="container">
+        <p class="cl-hero-kicker" th:text="#{index.kicker}">RESERVA FACIL, JUEGA YA</p>
+        <h1 class="cl-hero-title" th:utext="#{index.hero}">TU CANCHA, <br>TU MOMENTO</h1>
+        <p class="cl-hero-sub" th:text="#{index.hero.sub}">Encuentra y reserva canchas deportivas en todo Costa Rica.</p>
+    </div>
+</section>
+
+<main class="container">
+    <!-- Buscador (comparte el formulario #filtros mediante el atributo form) -->
+    <div class="cl-search">
+        <div class="row g-2 align-items-stretch">
+            <div class="col-12 col-md-3">
+                <div class="cl-field"><i class="fa-solid fa-futbol"></i>
+                    <div class="w-100"><label for="qDisciplina" th:text="#{index.buscar.deporte}">Deporte</label>
+                        <select id="qDisciplina" data-sync-disciplina>
+                            <option value="" th:text="#{index.buscar.todos}">Todos</option>
+                            <option th:each="d : ${disciplinas}" th:value="${d.id}" th:text="${d.nombre}"
+                                    th:selected="${selDisciplinas.contains(d.id)}">Futbol 5</option>
+                        </select></div></div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="cl-field"><i class="fa-solid fa-location-dot"></i>
+                    <div class="w-100"><label for="qProvincia" th:text="#{index.buscar.provincia}">Provincia</label>
+                        <select id="qProvincia" name="provincia" form="filtros" data-auto>
+                            <option value="" th:text="#{index.buscar.todas}">Todas</option>
+                            <option th:each="p : ${provincias}" th:value="${p}" th:text="${p}"
+                                    th:selected="${p == selProvincia}">San Jose</option>
+                        </select></div></div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="cl-field"><i class="fa-regular fa-calendar"></i>
+                    <div class="w-100"><label for="qFecha" th:text="#{index.buscar.fecha}">Fecha</label>
+                        <input id="qFecha" type="date" name="fecha" form="filtros" data-auto
+                               th:min="${hoy}" th:value="${fecha}"></div></div>
+            </div>
+            <div class="col-12 col-md-3">
+                <button type="submit" form="filtros" class="btn btn-lime" th:text="#{index.buscar.boton}">Buscar canchas</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <!-- Filtros -->
+        <aside class="col-lg-3">
+            <form id="filtros" th:action="@{/}" method="get" class="cl-panel cl-filtros" data-resultados="#resultados"
+                  th:attr="data-url=@{/complejos/resultados}">
+                <h5 class="mb-0" th:text="#{filtros.titulo}">Filtros</h5>
+
+                <h6 th:text="#{filtros.deporte}">Deporte</h6>
+                <div class="form-check" th:each="d : ${disciplinas}">
+                    <input class="form-check-input" type="checkbox" name="disciplina" th:id="'d' + ${d.id}" th:value="${d.id}"
+                           th:checked="${selDisciplinas.contains(d.id)}" data-auto>
+                    <label class="form-check-label" th:for="'d' + ${d.id}" th:text="${d.nombre}">Futbol 5</label>
+                </div>
+
+                <h6 th:text="#{filtros.tipo}">Tipo de administracion</h6>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="tipo" id="tPub" value="PUBLICO" th:checked="${#strings.contains(selTipos.toString(), 'PUBLICO')}" data-auto>
+                    <label class="form-check-label" for="tPub" th:text="#{tipo.PUBLICO}">Publico</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="tipo" id="tPri" value="PRIVADO" th:checked="${#strings.contains(selTipos.toString(), 'PRIVADO')}" data-auto>
+                    <label class="form-check-label" for="tPri" th:text="#{tipo.PRIVADO}">Privado</label>
+                </div>
+
+                <h6 th:text="#{filtros.superficie}">Superficie</h6>
+                <select class="form-select form-select-sm" name="superficie" data-auto>
+                    <option value="" th:text="#{index.buscar.todas}">Todas</option>
+                    <option th:each="s : ${superficies}" th:value="${s.name()}" th:text="#{${'superficie.' + s.name()}}"
+                            th:selected="${s.name() == selSuperficie}">Cesped</option>
+                </select>
+
+                <h6 th:text="#{filtros.techo}">Techo</h6>
+                <select class="form-select form-select-sm" name="techada" data-auto>
+                    <option value="" th:text="#{filtros.techo.cualquiera}">Cualquiera</option>
+                    <option value="si" th:selected="${selTecho == 'si'}" th:text="#{filtros.techo.si}">Techada</option>
+                    <option value="no" th:selected="${selTecho == 'no'}" th:text="#{filtros.techo.no}">Descubierta</option>
+                </select>
+
+                <h6 th:text="#{filtros.orden}">Ordenar por</h6>
+                <select class="form-select form-select-sm" name="orden" data-auto>
+                    <option value="relevantes" th:selected="${orden == 'relevantes'}" th:text="#{orden.relevantes}">Mas relevantes</option>
+                    <option value="precio_asc" th:selected="${orden == 'precio_asc'}" th:text="#{orden.precio_asc}">Precio: menor a mayor</option>
+                    <option value="precio_desc" th:selected="${orden == 'precio_desc'}" th:text="#{orden.precio_desc}">Precio: mayor a menor</option>
+                    <option value="calificacion" th:selected="${orden == 'calificacion'}" th:text="#{orden.calificacion}">Mejor calificadas</option>
+                </select>
+
+                <noscript><button class="btn btn-cl w-100 mt-3" type="submit" th:text="#{filtros.aplicar}">Aplicar</button></noscript>
+                <a class="btn btn-outline-cl btn-sm w-100 mt-3" th:href="@{/}" th:text="#{filtros.limpiar}">Limpiar filtros</a>
+            </form>
+        </aside>
+
+        <!-- Resultados -->
+        <section class="col-lg-9">
+            <div id="resultados" th:replace="~{complejo/resultados :: resultados}"></div>
+        </section>
+    </div>
+
+    <!-- Como funciona -->
+    <section id="como-funciona" class="mt-5 pt-3">
+        <h2 class="cl-section-title text-center" th:text="#{home.como.titulo}">Como funciona</h2>
+        <div class="row g-3 mt-2">
+            <div class="col-md-3 col-6"><div class="cl-paso-home"><span class="icono"><i class="fa-solid fa-magnifying-glass"></i></span><h5 th:text="#{home.como.1.t}">1. Busca</h5><p class="text-muted small" th:text="#{home.como.1.d}">Filtra por deporte, zona y fecha.</p></div></div>
+            <div class="col-md-3 col-6"><div class="cl-paso-home"><span class="icono"><i class="fa-regular fa-calendar-check"></i></span><h5 th:text="#{home.como.2.t}">2. Elige tu horario</h5><p class="text-muted small" th:text="#{home.como.2.d}">Mira la disponibilidad en tiempo real.</p></div></div>
+            <div class="col-md-3 col-6"><div class="cl-paso-home"><span class="icono"><i class="fa-solid fa-building-columns"></i></span><h5 th:text="#{home.como.3.t}">3. Paga por transferencia</h5><p class="text-muted small" th:text="#{home.como.3.d}">Tienes 15 minutos para subir tu comprobante.</p></div></div>
+            <div class="col-md-3 col-6"><div class="cl-paso-home"><span class="icono"><i class="fa-solid fa-trophy"></i></span><h5 th:text="#{home.como.4.t}">4. Juega</h5><p class="text-muted small" th:text="#{home.como.4.d}">El complejo confirma y tu cancha te espera.</p></div></div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

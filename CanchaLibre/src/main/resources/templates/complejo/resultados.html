@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="resultados" id="resultados">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h2 class="cl-section-title mb-0" th:text="#{resultados.titulo}">Canchas disponibles</h2>
+            <span class="text-muted small" th:text="#{resultados.total(${pagina.totalElements})}">12 complejos</span>
+        </div>
+    </div>
+
+    <div class="cl-panel text-center py-5" th:if="${pagina.empty}">
+        <i class="fa-regular fa-face-frown fa-2x text-muted mb-2"></i>
+        <h5 th:text="#{resultados.vacio.titulo}">No encontramos canchas</h5>
+        <p class="text-muted mb-0" th:text="#{resultados.vacio.texto}">Prueba quitando algun filtro.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4" th:each="c : ${pagina.content}">
+            <article class="cl-card">
+                <a class="cl-card-img" th:href="@{/complejos/{id}(id=${c.complejo.id}, fecha=${fecha})}">
+                    <img th:src="${c.imagenUrl}" th:alt="${c.complejo.nombre}" loading="lazy">
+                    <span class="cl-tag" th:if="${c.complejo.destacado}" th:text="#{resultados.destacado}">Destacado</span>
+                    <span class="cl-tag-tipo" th:text="#{${'tipo.' + c.complejo.tipoAdministracion.name()}}">Privado</span>
+                </a>
+                <div class="cl-card-body">
+                    <h3><a class="text-decoration-none" th:href="@{/complejos/{id}(id=${c.complejo.id}, fecha=${fecha})}" th:text="${c.complejo.nombre}">Complejo</a></h3>
+                    <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i><span th:text="${c.complejo.canton + ', ' + c.complejo.provincia}">Heredia</span></div>
+                    <div class="small cl-rating mt-1" th:if="${c.complejo.numResenas > 0}">
+                        <i class="fa-solid fa-star"></i> <b th:text="${#numbers.formatDecimal(c.complejo.calificacion, 1, 1, 'POINT')}">4.5</b>
+                        <span class="text-muted" th:text="'(' + ${c.complejo.numResenas} + ')'">(10)</span>
+                    </div>
+                    <div class="mt-2"><span class="badge text-bg-light border me-1" th:each="d : ${c.disciplinas}" th:text="${d}">Futbol</span></div>
+                    <ul class="cl-amenidades">
+                        <li th:if="${c.complejo.parqueo}"><i class="fa-solid fa-square-parking"></i><span th:text="#{amenidad.parqueo}">Parqueo</span></li>
+                        <li th:if="${c.complejo.vestidores}"><i class="fa-solid fa-shower"></i><span th:text="#{amenidad.vestidores}">Vestidores</span></li>
+                        <li th:if="${c.complejo.iluminacionNocturna}"><i class="fa-regular fa-lightbulb"></i><span th:text="#{amenidad.iluminacion}">Iluminacion</span></li>
+                    </ul>
+                    <div class="d-flex justify-content-between align-items-end mt-auto">
+                        <div class="cl-precio">
+                            <small th:text="#{resultados.desde}">Desde</small>
+                            <strong th:text="${@fmt.moneda(c.precioDesde)}">₡12,000</strong>
+                            <small th:text="#{resultados.porhora}">por hora</small>
+                        </div>
+                        <a class="btn btn-cl btn-sm" th:href="@{/complejos/{id}(id=${c.complejo.id}, fecha=${fecha})}" th:text="#{resultados.ver}">Ver cancha</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <nav class="mt-4" th:if="${pagina.totalPages > 1}" aria-label="paginas">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${pagina.first} ? 'disabled'">
+                <a class="page-link" href="#" th:attr="data-pagina=${pagina.number - 1}">&laquo;</a></li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, pagina.totalPages - 1)}" th:classappend="${i == pagina.number} ? 'active'">
+                <a class="page-link" href="#" th:attr="data-pagina=${i}" th:text="${i + 1}">1</a></li>
+            <li class="page-item" th:classappend="${pagina.last} ? 'disabled'">
+                <a class="page-link" href="#" th:attr="data-pagina=${pagina.number + 1}">&raquo;</a></li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>

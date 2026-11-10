@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.espacios.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('espacios')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.espacios.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <form th:action="@{/admin/espacios}" th:object="${form}" method="post" enctype="multipart/form-data" class="cl-panel" novalidate>
+                <input type="hidden" th:field="*{id}">
+                <h2 class="h5" th:text="${form.id == null} ? #{admin.espacios.nuevo} : #{admin.espacios.editar}">Espacio</h2>
+                <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}" th:text="#{admin.form.errores}">Revisa los campos</div>
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label" for="nombre" th:text="#{campo.nombre}">Nombre</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'" id="nombre" th:field="*{nombre}"><div class="invalid-feedback" th:errors="*{nombre}"></div></div>
+                    <div class="col-md-6"><label class="form-label" for="disciplinaId" th:text="#{campo.disciplina}">Deporte</label>
+                        <select class="form-select" th:classappend="${#fields.hasErrors('disciplinaId')} ? 'is-invalid'" id="disciplinaId" th:field="*{disciplinaId}">
+                            <option value="" th:text="#{comun.seleccione}">Seleccione</option>
+                            <option th:each="d : ${disciplinas}" th:value="${d.id}" th:text="${d.nombre}">Futbol 5</option></select>
+                        <div class="invalid-feedback" th:errors="*{disciplinaId}"></div></div>
+                    <div class="col-12"><label class="form-label" for="descripcion" th:text="#{campo.descripcion}">Descripcion</label><textarea class="form-control" id="descripcion" rows="2" th:field="*{descripcion}"></textarea></div>
+                    <div class="col-md-4"><label class="form-label" for="superficie" th:text="#{campo.superficie}">Superficie</label>
+                        <select class="form-select" id="superficie" th:field="*{superficie}"><option th:each="s : ${superficies}" th:value="${s}" th:text="#{${'superficie.' + s.name()}}">Cesped</option></select></div>
+                    <div class="col-md-4"><label class="form-label" for="capacidad" th:text="#{campo.capacidad}">Capacidad</label>
+                        <input class="form-control" type="number" min="1" th:classappend="${#fields.hasErrors('capacidad')} ? 'is-invalid'" id="capacidad" th:field="*{capacidad}"><div class="invalid-feedback" th:errors="*{capacidad}"></div></div>
+                    <div class="col-md-4"><label class="form-label" for="medidas" th:text="#{campo.medidas}">Medidas</label><input class="form-control" id="medidas" th:field="*{medidas}"></div>
+                    <div class="col-md-4"><div class="form-check mt-md-4"><input class="form-check-input" type="checkbox" id="techada" th:field="*{techada}"><label class="form-check-label" for="techada" th:text="#{filtros.techo.si}">Techada</label></div></div>
+                    <div class="col-md-4"><div class="form-check mt-md-4"><input class="form-check-input" type="checkbox" id="iluminacion" th:field="*{iluminacion}"><label class="form-check-label" for="iluminacion" th:text="#{amenidad.iluminacion}">Iluminacion</label></div></div>
+                    <div class="col-md-4"><div class="form-check mt-md-4"><input class="form-check-input" type="checkbox" id="activo" th:field="*{activo}"><label class="form-check-label" for="activo" th:text="#{estado.activo}">Activo</label></div></div>
+                    <div class="col-12"><label class="form-label" for="reglamento" th:text="#{detalle.tab.reglamento}">Reglamento</label><textarea class="form-control" id="reglamento" rows="2" th:field="*{reglamento}"></textarea></div>
+
+                    <div class="col-md-3"><label class="form-label" for="tipoTarifa" th:text="#{campo.tipotarifa}">Tipo de tarifa</label>
+                        <select class="form-select" id="tipoTarifa" th:field="*{tipoTarifa}"><option th:each="t : ${tiposTarifa}" th:value="${t}" th:text="#{${'tarifa.' + t.name()}}">Por hora</option></select></div>
+                    <div class="col-md-3"><label class="form-label" for="tarifaDiurna" th:text="#{detalle.tarifa.diurna}">Tarifa diurna</label>
+                        <input class="form-control" type="number" step="0.01" min="0" th:classappend="${#fields.hasErrors('tarifaDiurna')} ? 'is-invalid'" id="tarifaDiurna" th:field="*{tarifaDiurna}"><div class="invalid-feedback" th:errors="*{tarifaDiurna}"></div></div>
+                    <div class="col-md-3"><label class="form-label" for="recargoNocturno" th:text="#{campo.recargo}">Recargo nocturno</label>
+                        <input class="form-control" type="number" step="0.01" min="0" th:classappend="${#fields.hasErrors('recargoNocturno')} ? 'is-invalid'" id="recargoNocturno" th:field="*{recargoNocturno}"><div class="invalid-feedback" th:errors="*{recargoNocturno}"></div></div>
+                    <div class="col-md-3"><label class="form-label" for="depositoGarantia" th:text="#{detalle.deposito}">Deposito</label>
+                        <input class="form-control" type="number" step="0.01" min="0" th:classappend="${#fields.hasErrors('depositoGarantia')} ? 'is-invalid'" id="depositoGarantia" th:field="*{depositoGarantia}"><div class="invalid-feedback" th:errors="*{depositoGarantia}"></div></div>
+
+                    <div class="col-12"><label class="form-label" for="imagen" th:text="#{campo.imagen}">Imagen</label>
+                        <input class="form-control" type="file" id="imagen" name="imagen" accept="image/jpeg,image/png,image/webp">
+                        <div class="mt-2" th:if="${espacio != null and espacio.imagenUrl != null}"><img th:src="${espacio.imagenUrl}" alt="" style="max-height:110px;border-radius:8px"></div></div>
+                </div>
+                <div class="mt-4 d-flex gap-2"><button class="btn btn-cl px-4" type="submit" th:text="#{comun.guardar}">Guardar</button>
+                    <a class="btn btn-outline-cl" th:href="@{/admin/espacios}" th:text="#{comun.cancelar}">Cancelar</a></div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

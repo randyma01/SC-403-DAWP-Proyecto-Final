@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Menu lateral del perfil -->
+<aside th:fragment="lateral(activo)" class="cl-perfil">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="cl-avatar cl-avatar-lg" th:text="${usuarioActual.iniciales}">AB</span>
+        <div><div class="fw-bold" th:text="${usuarioActual.nombreCompleto}">Nombre</div>
+            <div class="small opacity-75" th:text="${usuarioActual.email}">correo</div></div>
+    </div>
+    <nav class="cl-menu-cuenta">
+        <a th:href="@{/mis-reservas}" th:classappend="${activo == 'reservas'} ? 'activo'"><i class="fa-regular fa-calendar-check"></i><span th:text="#{nav.misreservas}">Mis reservas</span></a>
+        <a th:href="@{/cuenta/notificaciones}" th:classappend="${activo == 'notificaciones'} ? 'activo'"><i class="fa-regular fa-bell"></i><span th:text="#{nav.notificaciones}">Notificaciones</span>
+            <span class="badge rounded-pill bg-danger ms-auto" th:if="${notifNoLeidas != null and notifNoLeidas > 0}" th:text="${notifNoLeidas}">1</span></a>
+        <a th:href="@{/}"><i class="fa-solid fa-magnifying-glass"></i><span th:text="#{cuenta.buscar}">Buscar canchas</span></a>
+    </nav>
+</aside>
+
+<!-- Lista de reservas -->
+<div th:fragment="lista(reservas)">
+    <div class="cl-panel text-center py-5" th:if="${#lists.isEmpty(reservas)}">
+        <i class="fa-regular fa-calendar fa-2x text-muted mb-2"></i>
+        <h5 th:text="#{cuenta.vacio.titulo}">Aun no tienes reservas</h5>
+        <a class="btn btn-cl mt-2" th:href="@{/}" th:text="#{cuenta.buscar}">Buscar canchas</a>
+    </div>
+    <div class="d-grid gap-2">
+        <div class="cl-reserva-item" th:each="r : ${reservas}" th:classappend="${r.estado.name() == 'PENDIENTE_PAGO'} ? 'destacada'">
+            <img th:src="${r.espacio.imagenUrl != null ? r.espacio.imagenUrl : '/img/placeholders/futbol-1.svg'}" th:alt="${r.espacio.nombre}">
+            <div class="flex-grow-1">
+                <div class="fw-bold" th:text="${r.espacio.complejo.nombre}">Complejo</div>
+                <div class="small text-muted" th:text="${r.espacio.nombre + ' - #' + r.codigo}">Cancha</div>
+                <div class="small"><i class="fa-regular fa-calendar me-1"></i><span class="text-capitalize" th:text="${@fmt.fechaCorta(r.fecha)}">fecha</span>
+                    <i class="fa-regular fa-clock ms-2 me-1"></i><span th:text="${@fmt.rango(r.horaInicio, r.horaFin)}">18:00</span></div>
+            </div>
+            <div class="text-end">
+                <span th:replace="~{fragments/estado :: badge(${r.estado})}"></span>
+                <div class="fw-bold mt-1" th:text="${@fmt.moneda(r.total)}">₡18,500</div>
+                <div class="mt-1 d-flex gap-1 justify-content-end flex-wrap">
+                    <a class="btn btn-cl btn-sm" th:if="${r.estado.name() == 'PENDIENTE_PAGO'}" th:href="@{/reservas/{c}/pago(c=${r.codigo})}" th:text="#{cuenta.pagar}">Pagar</a>
+                    <a class="btn btn-outline-cl btn-sm" th:href="@{/reservas/{c}(c=${r.codigo})}" th:text="#{cuenta.detalle}">Ver detalle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

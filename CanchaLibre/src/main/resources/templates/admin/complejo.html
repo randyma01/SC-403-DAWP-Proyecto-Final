@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.complejo.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('complejo')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.complejo.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <form th:action="@{/admin/complejo}" th:object="${form}" method="post" class="cl-panel" novalidate>
+                <h2 class="h5" th:text="#{admin.complejo.datos}">Datos del complejo</h2>
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label" for="nombre" th:text="#{campo.nombre}">Nombre</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'" id="nombre" th:field="*{nombre}"><div class="invalid-feedback" th:errors="*{nombre}"></div></div>
+                    <div class="col-md-6"><label class="form-label" for="telefono" th:text="#{registro.telefono}">Telefono</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid'" id="telefono" th:field="*{telefono}"><div class="invalid-feedback" th:errors="*{telefono}"></div></div>
+                    <div class="col-12"><label class="form-label" for="direccion" th:text="#{campo.direccion}">Direccion</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid'" id="direccion" th:field="*{direccion}"><div class="invalid-feedback" th:errors="*{direccion}"></div></div>
+                    <div class="col-12"><label class="form-label" for="descripcion" th:text="#{campo.descripcion}">Descripcion</label>
+                        <textarea class="form-control" id="descripcion" rows="3" th:field="*{descripcion}"></textarea></div>
+                    <div class="col-md-4"><label class="form-label" for="horaApertura" th:text="#{campo.apertura}">Apertura</label>
+                        <input class="form-control" type="time" th:classappend="${#fields.hasErrors('horaApertura')} ? 'is-invalid'" id="horaApertura" th:field="*{horaApertura}"><div class="invalid-feedback" th:errors="*{horaApertura}"></div></div>
+                    <div class="col-md-4"><label class="form-label" for="horaCierre" th:text="#{campo.cierre}">Cierre</label>
+                        <input class="form-control" type="time" th:classappend="${#fields.hasErrors('horaCierre')} ? 'is-invalid'" id="horaCierre" th:field="*{horaCierre}"><div class="invalid-feedback" th:errors="*{horaCierre}"></div></div>
+                    <div class="col-md-4"><label class="form-label" for="horaInicioNocturno" th:text="#{campo.nocturno}">Inicio tarifa nocturna</label>
+                        <input class="form-control" type="time" th:classappend="${#fields.hasErrors('horaInicioNocturno')} ? 'is-invalid'" id="horaInicioNocturno" th:field="*{horaInicioNocturno}"><div class="invalid-feedback" th:errors="*{horaInicioNocturno}"></div></div>
+                </div>
+                <h2 class="h5 mt-4" th:text="#{detalle.tab.servicios}">Servicios</h2>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="parqueo" th:field="*{parqueo}"><label class="form-check-label" for="parqueo" th:text="#{amenidad.parqueo}">Parqueo</label></div></div>
+                    <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="vestidores" th:field="*{vestidores}"><label class="form-check-label" for="vestidores" th:text="#{amenidad.vestidores}">Vestidores</label></div></div>
+                    <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="soda" th:field="*{soda}"><label class="form-check-label" for="soda" th:text="#{amenidad.soda}">Soda</label></div></div>
+                    <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="iluminacionNocturna" th:field="*{iluminacionNocturna}"><label class="form-check-label" for="iluminacionNocturna" th:text="#{amenidad.iluminacion}">Iluminacion</label></div></div>
+                </div>
+                <h2 class="h5 mt-4" th:text="#{admin.complejo.cuenta}">Cuenta bancaria para pagos</h2>
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label" for="banco" th:text="#{pago.banco}">Banco</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('banco')} ? 'is-invalid'" id="banco" th:field="*{banco}"><div class="invalid-feedback" th:errors="*{banco}"></div></div>
+                    <div class="col-md-4"><label class="form-label" for="titular" th:text="#{pago.titular}">Titular</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('titular')} ? 'is-invalid'" id="titular" th:field="*{titular}"><div class="invalid-feedback" th:errors="*{titular}"></div></div>
+                    <div class="col-md-4"><label class="form-label" for="iban">IBAN</label>
+                        <input class="form-control" th:classappend="${#fields.hasErrors('iban')} ? 'is-invalid'" id="iban" th:field="*{iban}"><div class="invalid-feedback" th:errors="*{iban}"></div></div>
+                </div>
+                <button class="btn btn-cl mt-4 px-4" type="submit" th:text="#{comun.guardar}">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

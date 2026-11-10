@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.bloqueos.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('bloqueos')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.bloqueos.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <form th:action="@{/admin/bloqueos}" th:object="${form}" method="post" class="cl-panel" novalidate>
+                        <h2 class="h5" th:text="#{admin.bloqueos.nuevo}">Bloquear horario</h2>
+                        <p class="small text-muted" th:text="#{admin.bloqueos.sub}">Para mantenimiento o eventos privados.</p>
+                        <div class="alert alert-danger" th:if="${error != null}" th:text="${error}"></div>
+                        <div class="mb-3"><label class="form-label" for="espacioId" th:text="#{campo.espacio}">Espacio</label>
+                            <select class="form-select" th:classappend="${#fields.hasErrors('espacioId')} ? 'is-invalid'" id="espacioId" th:field="*{espacioId}">
+                                <option value="" th:text="#{comun.seleccione}">Seleccione</option>
+                                <option th:each="e : ${espacios}" th:value="${e.id}" th:text="${e.nombre}">Cancha</option></select>
+                            <div class="invalid-feedback" th:errors="*{espacioId}"></div></div>
+                        <div class="mb-3"><label class="form-label" for="fecha" th:text="#{admin.col.fecha}">Fecha</label>
+                            <input class="form-control" type="date" th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'" id="fecha" th:field="*{fecha}"><div class="invalid-feedback" th:errors="*{fecha}"></div></div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><label class="form-label" for="horaDesde" th:text="#{campo.desde}">Desde</label>
+                                <input class="form-control" type="time" th:classappend="${#fields.hasErrors('horaDesde')} ? 'is-invalid'" id="horaDesde" th:field="*{horaDesde}"><div class="invalid-feedback" th:errors="*{horaDesde}"></div></div>
+                            <div class="col-6"><label class="form-label" for="horaHasta" th:text="#{campo.hasta}">Hasta</label>
+                                <input class="form-control" type="time" th:classappend="${#fields.hasErrors('horaHasta')} ? 'is-invalid'" id="horaHasta" th:field="*{horaHasta}"><div class="invalid-feedback" th:errors="*{horaHasta}"></div></div>
+                        </div>
+                        <div class="mb-3"><label class="form-label" for="motivo" th:text="#{campo.motivo}">Motivo</label><input class="form-control" id="motivo" th:field="*{motivo}" maxlength="150"></div>
+                        <button class="btn btn-cl w-100" type="submit" th:text="#{admin.bloqueos.boton}">Bloquear</button>
+                    </form>
+                </div>
+                <div class="col-lg-8">
+                    <div class="cl-tabla"><div class="table-responsive"><table class="table align-middle">
+                        <thead><tr><th th:text="#{campo.espacio}">Espacio</th><th th:text="#{admin.col.fecha}">Fecha</th><th th:text="#{campo.motivo}">Motivo</th><th></th></tr></thead>
+                        <tbody>
+                        <tr th:each="b : ${bloqueos}">
+                            <td th:text="${b.espacio.nombre}">Cancha</td>
+                            <td><span th:text="${@fmt.fechaCorta(b.fecha)}">fecha</span> <span class="text-muted" th:text="${@fmt.rango(b.horaInicio, b.horaFin)}">10:00</span></td>
+                            <td th:text="${b.motivo != null ? b.motivo : '-'}">Mantenimiento</td>
+                            <td class="text-end"><form th:action="@{/admin/bloqueos/{id}/eliminar(id=${b.id})}" method="post"><button class="btn btn-outline-danger-cl btn-sm" type="submit"><i class="fa-solid fa-trash"></i></button></form></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(bloqueos)}"><td colspan="4" class="text-center text-muted py-4" th:text="#{admin.bloqueos.vacio}">Sin bloqueos</td></tr>
+                        </tbody></table></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

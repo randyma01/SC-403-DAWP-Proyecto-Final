@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{nav.misreservas})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-3"><div th:replace="~{cuenta/fragmentos :: lateral('reservas')}"></div></div>
+        <section class="col-lg-9">
+            <h1 class="cl-section-title" th:text="#{nav.misreservas}">Mis reservas</h1>
+
+            <div class="cl-panel mb-3" th:if="${proxima != null}">
+                <div class="small text-muted" th:text="#{cuenta.proxima}">Tu proxima reserva</div>
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center">
+                    <div><b th:text="${proxima.espacio.complejo.nombre + ' - ' + proxima.espacio.nombre}">Complejo</b>
+                        <span class="text-muted ms-2 text-capitalize" th:text="${@fmt.fechaLarga(proxima.fecha) + ', ' + @fmt.rango(proxima.horaInicio, proxima.horaFin)}"></span></div>
+                    <a class="btn btn-outline-cl btn-sm" th:href="@{/reservas/{c}(c=${proxima.codigo})}" th:text="#{cuenta.detalle}">Ver detalle</a>
+                </div>
+            </div>
+
+            <div class="cl-tabs">
+                <a th:href="@{/mis-reservas(tab='todas')}" th:classappend="${tab == 'todas'} ? 'activo'" th:text="#{tab.todas}">Todas</a>
+                <a th:href="@{/mis-reservas(tab='pendientes')}" th:classappend="${tab == 'pendientes'} ? 'activo'" th:text="#{tab.pendientes}">Pendientes</a>
+                <a th:href="@{/mis-reservas(tab='confirmadas')}" th:classappend="${tab == 'confirmadas'} ? 'activo'" th:text="#{tab.confirmadas}">Confirmadas</a>
+                <a th:href="@{/mis-reservas(tab='canceladas')}" th:classappend="${tab == 'canceladas'} ? 'activo'" th:text="#{tab.canceladas}">Canceladas</a>
+            </div>
+
+            <form class="row g-2 mb-3" th:action="@{/mis-reservas}" method="get">
+                <input type="hidden" name="tab" th:value="${tab}">
+                <div class="col-md-6"><input type="search" class="form-control" name="q" th:value="${q}" th:placeholder="#{cuenta.buscar.ph}"></div>
+                <div class="col-md-4"><input type="date" class="form-control" name="fecha" th:value="${fecha}"></div>
+                <div class="col-md-2 d-grid"><button class="btn btn-cl" type="submit" th:text="#{filtros.aplicar}">Aplicar</button></div>
+            </form>
+
+            <div th:replace="~{cuenta/fragmentos :: lista(${reservas})}"></div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

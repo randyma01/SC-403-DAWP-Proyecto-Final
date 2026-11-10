@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(activo)" class="cl-admin-side">
+    <a class="cl-logo" th:href="@{/}">CANCHA<br>LIBRE</a>
+    <span class="rol" th:text="#{admin.rol}">ADMINISTRADOR</span>
+    <nav>
+        <a th:href="@{/admin}" th:classappend="${activo == 'panel'} ? 'activo'"><i class="fa-solid fa-table-columns"></i><span th:text="#{admin.menu.panel}">Panel</span>
+            <span class="badge rounded-pill bg-warning text-dark ms-auto" th:if="${adminPendientes != null and adminPendientes > 0}" th:text="${adminPendientes}">2</span></a>
+        <a th:href="@{/admin/complejo}" th:classappend="${activo == 'complejo'} ? 'activo'"><i class="fa-solid fa-building"></i><span th:text="#{admin.menu.complejo}">Mi complejo</span></a>
+        <a th:href="@{/admin/espacios}" th:classappend="${activo == 'espacios'} ? 'activo'"><i class="fa-solid fa-futbol"></i><span th:text="#{admin.menu.espacios}">Espacios</span></a>
+        <a th:href="@{/admin/tarifas}" th:classappend="${activo == 'tarifas'} ? 'activo'"><i class="fa-solid fa-tags"></i><span th:text="#{admin.menu.tarifas}">Tarifas</span></a>
+        <a th:href="@{/admin/insumos}" th:classappend="${activo == 'insumos'} ? 'activo'"><i class="fa-solid fa-basketball"></i><span th:text="#{admin.menu.insumos}">Insumos</span></a>
+        <a th:href="@{/admin/bloqueos}" th:classappend="${activo == 'bloqueos'} ? 'activo'"><i class="fa-solid fa-ban"></i><span th:text="#{admin.menu.bloqueos}">Bloqueos</span></a>
+        <a th:href="@{/}"><i class="fa-solid fa-arrow-up-right-from-square"></i><span th:text="#{admin.menu.sitio}">Ver sitio publico</span></a>
+    </nav>
+    <div class="cl-complejo-card" th:if="${usuarioActual != null and usuarioActual.complejo != null}">
+        <div class="small opacity-75" th:text="#{admin.complejo.actual}">Complejo</div>
+        <div class="fw-bold" th:text="${usuarioActual.complejo.nombre}">Complejo</div>
+    </div>
+</aside>
+
+<div th:fragment="topbar(titulo)" class="cl-admin-top">
+    <h1 th:text="${titulo}">Titulo</h1>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="cl-lang btn-group">
+            <a class="btn btn-outline-cl" th:classappend="${#locale.language == 'es'} ? 'active'" th:href="@{${uri ?: '/admin'}(lang=es)}">ES</a>
+            <a class="btn btn-outline-cl" th:classappend="${#locale.language == 'en'} ? 'active'" th:href="@{${uri ?: '/admin'}(lang=en)}">EN</a>
+        </span>
+        <span class="cl-avatar" th:text="${usuarioActual.iniciales}">AD</span>
+        <span class="small d-none d-md-inline" th:text="${usuarioActual.nombreCompleto}">Admin</span>
+        <form th:action="@{/logout}" method="post" class="m-0"><button class="btn btn-outline-cl btn-sm" type="submit" th:text="#{nav.logout}">Salir</button></form>
+    </div>
+</div>
+
+<div th:fragment="alertas">
+    <div class="alert alert-success alert-dismissible fade show" th:if="${exito != null}"><i class="fa-solid fa-circle-check me-1"></i><span th:text="${exito}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${error != null}"><i class="fa-solid fa-triangle-exclamation me-1"></i><span th:text="${error}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+</div>
+</body>
+</html>

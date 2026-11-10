@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.insumos.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('insumos')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.insumos.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <div class="d-flex justify-content-between mb-3"><span class="text-muted" th:text="#{admin.insumos.sub}">Equipamiento y servicios que el cliente puede agregar.</span>
+                <a class="btn btn-cl" th:href="@{/admin/insumos/nuevo}"><i class="fa-solid fa-plus me-1"></i><span th:text="#{admin.insumos.nuevo}">Nuevo insumo</span></a></div>
+            <div class="cl-tabla"><div class="table-responsive"><table class="table align-middle">
+                <thead><tr><th th:text="#{campo.nombre}">Nombre</th><th th:text="#{campo.categoria}">Categoria</th><th th:text="#{campo.precio}">Precio</th><th th:text="#{campo.stock}">Stock</th><th th:text="#{admin.col.estado}">Estado</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="i : ${insumos}">
+                    <td class="fw-medium" th:text="${i.nombre}">Balon</td>
+                    <td th:text="#{${'categoria.' + i.categoria.name()}}">Equipamiento</td>
+                    <td th:text="${@fmt.moneda(i.precio) + ' / ' + i.unidad}">₡1,000</td>
+                    <td th:text="${i.stock != null ? i.stock : '∞'}">10</td>
+                    <td><span class="estado" th:classappend="${i.activo} ? 'estado-confirmada' : 'estado-gris'" th:text="${i.activo} ? #{estado.activo} : #{estado.inactivo}">Activo</span></td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-outline-cl btn-sm" th:href="@{/admin/insumos/{id}/editar(id=${i.id})}"><i class="fa-solid fa-pen"></i></a>
+                        <form class="d-inline" th:action="@{/admin/insumos/{id}/alternar(id=${i.id})}" method="post"><button class="btn btn-outline-cl btn-sm" type="submit" th:title="${i.activo} ? #{admin.desactivar} : #{admin.activar}"><i class="fa-solid" th:classappend="${i.activo} ? 'fa-eye-slash' : 'fa-eye'"></i></button></form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(insumos)}"><td colspan="6" class="text-center text-muted py-4" th:text="#{admin.vacio}">Sin datos</td></tr>
+                </tbody></table></div></div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{disp.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<section class="cl-banda">
+    <div class="container d-flex align-items-center gap-3 py-3">
+        <div class="flex-grow-1">
+            <small th:text="#{disp.kicker}">RESERVA TU ESPACIO</small>
+            <h1 th:text="${complejo.nombre}">Complejo</h1>
+            <div class="meta"><span><i class="fa-solid fa-location-dot me-1"></i><span th:text="${complejo.canton + ', ' + complejo.provincia}"></span></span>
+                <span><i class="fa-regular fa-clock me-1"></i><span th:text="${@fmt.rango(complejo.horaApertura, complejo.horaCierre)}"></span></span></div>
+        </div>
+        <div class="cl-stepper text-white">
+            <span class="activo"><b>1</b><span th:text="#{paso.horario}">Horario</span></span>
+            <span><b>2</b><span th:text="#{paso.insumos}">Insumos</span></span>
+            <span><b>3</b><span th:text="#{paso.pago}">Pago</span></span>
+            <span><b>4</b><span th:text="#{paso.confirmacion}">Confirmacion</span></span>
+        </div>
+    </div>
+</section>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <!-- Calendario + seleccion -->
+        <aside class="col-lg-4">
+            <div class="cl-panel mb-3">
+                <label class="form-label" th:text="#{disp.espacio}">Espacio</label>
+                <select class="form-select mb-3" id="selEspacio" th:attr="data-base=@{/complejos/{id}/disponibilidad(id=${complejo.id})}, data-fecha=${fecha}">
+                    <option th:each="e : ${espacios}" th:value="${e.id}" th:selected="${e.id == espacio.id}" th:text="${e.nombre + ' - ' + e.disciplina.nombre}">Cancha</option>
+                </select>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <a class="btn btn-sm btn-outline-cl" th:classappend="${mesAnterior == null} ? 'disabled'"
+                       th:href="${mesAnterior != null} ? @{/complejos/{id}/disponibilidad(id=${complejo.id}, espacio=${espacio.id}, fecha=${mesAnterior})} : '#'"><i class="fa-solid fa-chevron-left"></i></a>
+                    <strong class="text-capitalize" th:text="${@fmt.mesAnio(mes)}">noviembre 2026</strong>
+                    <a class="btn btn-sm btn-outline-cl" th:href="@{/complejos/{id}/disponibilidad(id=${complejo.id}, espacio=${espacio.id}, fecha=${mesSiguiente})}"><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+                <div class="cl-cal">
+                    <span class="cal-h" th:each="d : ${#strings.arraySplit(#messages.msg('disp.dias'), ',')}" th:text="${d}">L</span>
+                    <th:block th:each="d : ${dias}">
+                        <span th:if="${d.dia == 0}"></span>
+                        <span class="dia off" th:if="${d.dia != 0 and d.deshabilitado}" th:text="${d.dia}">1</span>
+                        <a th:if="${d.dia != 0 and !d.deshabilitado}" th:classappend="${(d.seleccionado ? 'sel ' : '') + (d.hoy ? 'hoy' : '')}"
+                           th:href="@{/complejos/{id}/disponibilidad(id=${complejo.id}, espacio=${espacio.id}, fecha=${d.fecha})}" th:text="${d.dia}">1</a>
+                    </th:block>
+                </div>
+            </div>
+
+            <div class="cl-panel">
+                <h2 class="h5" th:text="#{disp.seleccion}">Tu seleccion</h2>
+                <dl class="cl-seleccion row mb-2">
+                    <dt class="col-5" th:text="#{disp.sel.espacio}">Espacio</dt><dd class="col-7" th:text="${espacio.nombre}">Cancha</dd>
+                    <dt class="col-5" th:text="#{disp.sel.fecha}">Fecha</dt><dd class="col-7 text-capitalize" th:text="${@fmt.fechaLarga(fecha)}">Fecha</dd>
+                    <dt class="col-5" th:text="#{disp.sel.horario}">Horario</dt><dd class="col-7" id="selHorario">&mdash;</dd>
+                    <dt class="col-5" th:text="#{disp.sel.precio}">Precio</dt><dd class="col-7" id="selPrecio">&mdash;</dd>
+                </dl>
+                <div class="cl-aviso-lima mb-3"><i class="fa-solid fa-clock"></i><span th:text="#{disp.aviso.timer}">Tendras 15 minutos para completar el pago.</span></div>
+                <form id="formSeleccion" th:action="@{/reservar/insumos}" method="get">
+                    <input type="hidden" name="espacioId" th:value="${espacio.id}">
+                    <input type="hidden" name="fecha" th:value="${fecha}">
+                    <input type="hidden" name="hora" id="selHoraInput">
+                    <button class="btn btn-cl w-100 py-2" type="submit" id="btnContinuar" disabled th:text="#{disp.continuar}">Continuar</button>
+                </form>
+                <p class="small text-muted mt-2 mb-0" th:if="${usuarioActual == null}"><i class="fa-solid fa-circle-info me-1"></i><span th:text="#{disp.login.aviso}">Se te pedira iniciar sesion al continuar.</span></p>
+            </div>
+        </aside>
+
+        <!-- Cuadricula -->
+        <section class="col-lg-8">
+            <div class="cl-panel">
+                <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+                    <h2 class="h5 text-capitalize mb-0" th:text="${@fmt.fechaLarga(fecha)}">Fecha</h2>
+                    <div class="cl-leyenda">
+                        <span><i class="punto" style="background:#d4f09f"></i><span th:text="#{celda.DISPONIBLE}">Disponible</span></span>
+                        <span><i class="punto" style="background:#ffe9b8"></i><span th:text="#{celda.APARTADO}">Apartado</span></span>
+                        <span><i class="punto" style="background:#dfe3e2"></i><span th:text="#{celda.OCUPADO}">Ocupado</span></span>
+                        <span><i class="punto" style="background:var(--cl-green)"></i><span th:text="#{celda.elegida}">Tu seleccion</span></span>
+                    </div>
+                </div>
+                <div class="cl-grid-wrap">
+                    <table class="cl-grid" id="gridDisp">
+                        <thead><tr><th></th><th th:each="e : ${espacios}" th:text="${e.nombre}">Cancha</th></tr></thead>
+                        <tbody>
+                        <tr th:each="fila : ${filas}">
+                            <td class="hora" th:text="${@fmt.hora(fila.horaInicio)}">08:00</td>
+                            <td th:each="c : ${fila.celdas}">
+                                <button type="button" class="cl-celda" th:classappend="${c.estado}"
+                                        th:disabled="${!c.seleccionable or c.espacioId != espacio.id}"
+                                        th:attr="data-hora=${@fmt.hora(fila.horaInicio)}, data-rango=${@fmt.rango(fila.horaInicio, fila.horaFin)}, data-nocturno=${!fila.horaInicio.isBefore(complejo.horaInicioNocturno)}"
+                                        th:text="#{${'celda.' + c.estado}}">Libre</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small text-muted mt-2 mb-0" th:text="#{disp.nota.espacio}">Selecciona un horario libre en la columna del espacio elegido.</p>
+                <div id="datosTarifa" class="d-none" th:attr="data-diurna=${espacio.tarifaDiurna}, data-nocturna=${espacio.tarifaNocturna}, data-simbolo='₡'"></div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

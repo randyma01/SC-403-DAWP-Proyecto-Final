@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.espacios.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('espacios')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.espacios.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <div class="d-flex justify-content-between mb-3"><span class="text-muted" th:text="#{admin.espacios.sub}">Cada espacio es una cancha reservable.</span>
+                <a class="btn btn-cl" th:href="@{/admin/espacios/nuevo}"><i class="fa-solid fa-plus me-1"></i><span th:text="#{admin.espacios.nuevo}">Nuevo espacio</span></a></div>
+            <div class="cl-tabla"><div class="table-responsive"><table class="table align-middle">
+                <thead><tr><th></th><th th:text="#{campo.nombre}">Nombre</th><th th:text="#{campo.disciplina}">Deporte</th><th th:text="#{campo.superficie}">Superficie</th><th th:text="#{campo.tarifa}">Tarifa</th><th th:text="#{admin.col.estado}">Estado</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="e : ${espacios}">
+                    <td><img th:src="${e.imagenUrl != null ? e.imagenUrl : '/img/placeholders/futbol-1.svg'}" alt="" style="width:64px;height:44px;object-fit:cover;border-radius:6px"></td>
+                    <td class="fw-medium" th:text="${e.nombre}">Cancha</td>
+                    <td th:text="${e.disciplina.nombre}">Futbol 5</td>
+                    <td th:text="#{${'superficie.' + e.superficie.name()}}">Cesped</td>
+                    <td th:text="${@fmt.moneda(e.tarifaDiurna)}">₡12,000</td>
+                    <td><span class="estado" th:classappend="${e.activo} ? 'estado-confirmada' : 'estado-gris'" th:text="${e.activo} ? #{estado.activo} : #{estado.inactivo}">Activo</span></td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-outline-cl btn-sm" th:href="@{/admin/espacios/{id}/editar(id=${e.id})}"><i class="fa-solid fa-pen"></i></a>
+                        <form class="d-inline" th:action="@{/admin/espacios/{id}/alternar(id=${e.id})}" method="post"><button class="btn btn-outline-cl btn-sm" type="submit" th:title="${e.activo} ? #{admin.desactivar} : #{admin.activar}"><i class="fa-solid" th:classappend="${e.activo} ? 'fa-eye-slash' : 'fa-eye'"></i></button></form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(espacios)}"><td colspan="7" class="text-center text-muted py-4" th:text="#{admin.vacio}">Sin datos</td></tr>
+                </tbody></table></div></div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

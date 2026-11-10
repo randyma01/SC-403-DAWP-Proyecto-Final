@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.tarifas.titulo})}"></head>
+<body class="cl-admin">
+<div class="cl-admin-shell">
+    <aside th:replace="~{admin/fragmentos :: sidebar('tarifas')}"></aside>
+    <div class="cl-admin-main">
+        <div th:replace="~{admin/fragmentos :: topbar(#{admin.tarifas.titulo})}"></div>
+        <div class="cl-admin-content">
+            <div th:replace="~{admin/fragmentos :: alertas}"></div>
+            <p class="text-muted" th:text="#{admin.tarifas.sub}">Los precios incluyen IVA. El recargo nocturno se suma a la tarifa diurna desde la hora configurada.</p>
+            <div class="d-grid gap-3">
+                <form class="cl-panel" th:each="e : ${espacios}" th:action="@{/admin/tarifas/{id}(id=${e.id})}" method="post">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-3"><div class="fw-bold" th:text="${e.nombre}">Cancha</div><div class="small text-muted" th:text="${e.disciplina.nombre}">Futbol 5</div></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small" th:text="#{campo.tipotarifa}">Tipo</label>
+                            <select class="form-select form-select-sm" name="tipoTarifa"><option th:each="t : ${tiposTarifa}" th:value="${t}" th:selected="${t == e.tipoTarifa}" th:text="#{${'tarifa.' + t.name()}}">Por hora</option></select></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small" th:text="#{detalle.tarifa.diurna}">Diurna</label>
+                            <input class="form-control form-control-sm" type="number" step="0.01" min="0.01" name="tarifaDiurna" th:value="${e.tarifaDiurna}" required></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small" th:text="#{campo.recargo}">Recargo</label>
+                            <input class="form-control form-control-sm" type="number" step="0.01" min="0" name="recargoNocturno" th:value="${e.recargoNocturno}" required></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small" th:text="#{detalle.deposito}">Deposito</label>
+                            <input class="form-control form-control-sm" type="number" step="0.01" min="0" name="depositoGarantia" th:value="${e.depositoGarantia}" required></div>
+                        <div class="col-lg-1 d-grid"><button class="btn btn-cl btn-sm" type="submit"><i class="fa-solid fa-floppy-disk"></i></button></div>
+                    </div>
+                </form>
+                <div class="text-muted" th:if="${#lists.isEmpty(espacios)}" th:text="#{admin.vacio}">Sin datos</div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

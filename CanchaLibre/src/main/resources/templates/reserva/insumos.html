@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{insumos.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<section class="cl-banda">
+    <div class="container d-flex align-items-center gap-3 py-3">
+        <div class="flex-grow-1">
+            <small th:text="#{insumos.kicker}">PERSONALIZA TU RESERVA</small>
+            <h1 th:text="${complejo.nombre}">Complejo</h1>
+            <div class="meta"><span th:text="${espacio.nombre}">Cancha</span>
+                <span class="text-capitalize" th:text="${@fmt.fechaLarga(fecha)}">Fecha</span>
+                <span th:text="${@fmt.rango(hora, horaFin)}">18:00 - 19:00</span></div>
+        </div>
+        <div class="cl-stepper text-white">
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.horario}">Horario</span></span>
+            <span class="activo"><b>2</b><span th:text="#{paso.insumos}">Insumos</span></span>
+            <span><b>3</b><span th:text="#{paso.pago}">Pago</span></span>
+            <span><b>4</b><span th:text="#{paso.confirmacion}">Confirmacion</span></span>
+        </div>
+    </div>
+</section>
+
+<main class="container py-4">
+    <form id="formReserva" th:action="@{/reservar}" method="post"
+          th:attr="data-pista=${base.subtotalPista}, data-iva=${base.porcentajeIva}, data-simbolo='₡'">
+        <input type="hidden" name="espacioId" th:value="${espacio.id}">
+        <input type="hidden" name="fecha" th:value="${fecha}">
+        <input type="hidden" name="hora" th:value="${@fmt.hora(hora)}">
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h2 class="cl-section-title" th:text="#{insumos.equipamiento}">Equipamiento</h2>
+                <p class="text-muted small" th:text="#{insumos.opcional}">Todo es opcional. Agrega lo que necesites para tu partido.</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-4" th:each="v : ${equipamiento}">
+                        <div class="cl-insumo" th:classappend="${v.disponible != null and v.disponible <= 0} ? 'agotado'"
+                             th:attr="data-id=${v.insumo.id}, data-precio=${v.insumo.precio}, data-nombre=${v.insumo.nombre}, data-max=${v.disponible != null ? v.disponible : 99}">
+                            <div class="icono"><i class="fa-solid fa-basketball"></i></div>
+                            <div class="fw-medium" th:text="${v.insumo.nombre}">Balon</div>
+                            <div class="small text-muted" th:text="${v.insumo.descripcion}">Descripcion</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="precio" th:text="${@fmt.moneda(v.insumo.precio)}">₡1,000</span>
+                                <span class="small text-muted" th:if="${v.disponible != null}" th:text="#{insumos.quedan(${v.disponible})}">5 disp.</span>
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between align-items-center" th:unless="${v.disponible != null and v.disponible <= 0}">
+                                <span class="cl-stepper-qty">
+                                    <button type="button" data-menos aria-label="-">&minus;</button>
+                                    <input type="number" class="form-control form-control-sm text-center" style="width:58px" min="0" value="0"
+                                           th:name="'insumo_' + ${v.insumo.id}" data-cant>
+                                    <button type="button" data-mas aria-label="+">+</button>
+                                </span>
+                            </div>
+                            <div class="mt-2 small text-danger" th:if="${v.disponible != null and v.disponible <= 0}" th:text="#{insumos.agotado}">Agotado</div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-muted" th:if="${#lists.isEmpty(equipamiento)}" th:text="#{detalle.insumos.vacio}">Sin insumos</div>
+                </div>
+
+                <h2 class="cl-section-title" th:text="#{insumos.servicios}">Servicios adicionales</h2>
+                <div class="row g-3">
+                    <div class="col-6 col-md-4" th:each="v : ${servicios}">
+                        <div class="cl-insumo servicio" th:classappend="${v.disponible != null and v.disponible <= 0} ? 'agotado'"
+                             th:attr="data-id=${v.insumo.id}, data-precio=${v.insumo.precio}, data-nombre=${v.insumo.nombre}, data-max=1">
+                            <div class="icono"><i class="fa-solid fa-bell-concierge"></i></div>
+                            <div class="fw-medium" th:text="${v.insumo.nombre}">Arbitro</div>
+                            <div class="small text-muted" th:text="${v.insumo.descripcion}">Descripcion</div>
+                            <div class="mt-2"><span class="precio" th:text="${@fmt.moneda(v.insumo.precio)}">₡8,000</span></div>
+                            <div class="form-check form-switch mt-2" th:unless="${v.disponible != null and v.disponible <= 0}">
+                                <input class="form-check-input" type="checkbox" role="switch" th:id="'srv' + ${v.insumo.id}" data-toggle-servicio>
+                                <label class="form-check-label small" th:for="'srv' + ${v.insumo.id}" th:text="#{insumos.agregar}">Agregar</label>
+                                <input type="hidden" th:name="'insumo_' + ${v.insumo.id}" value="0" data-cant>
+                            </div>
+                            <div class="mt-2 small text-danger" th:if="${v.disponible != null and v.disponible <= 0}" th:text="#{insumos.agotado}">Agotado</div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-muted" th:if="${#lists.isEmpty(servicios)}" th:text="#{insumos.sinservicios}">Sin servicios</div>
+                </div>
+            </div>
+
+            <!-- Resumen -->
+            <aside class="col-lg-4">
+                <div class="cl-panel cl-resumen">
+                    <h2 class="h5" th:text="#{insumos.resumen}">Resumen de tu reserva</h2>
+                    <div class="small text-muted mb-2">
+                        <div th:text="${espacio.nombre + ' - ' + complejo.nombre}">Cancha</div>
+                        <div class="text-capitalize" th:text="${@fmt.fechaLarga(fecha) + ', ' + @fmt.rango(hora, horaFin)}">Fecha</div>
+                    </div>
+                    <hr>
+                    <div class="cl-linea"><span th:text="${base.nocturno} ? #{insumos.pista.nocturna} : #{insumos.pista.diurna}">Alquiler</span>
+                        <b th:text="${@fmt.moneda(base.subtotalPista)}">₡15,000</b></div>
+                    <div id="lineasInsumos"></div>
+                    <hr>
+                    <div class="cl-linea small text-muted"><span th:text="#{insumos.iva.incluido(${base.porcentajeIva.intValue()})}">IVA incluido</span>
+                        <span id="resIva" th:text="${@fmt.moneda(base.impuesto)}">₡1,725</span></div>
+                    <div class="cl-linea small text-muted" th:if="${base.depositoGarantia.signum() > 0}"><span th:text="#{insumos.deposito}">Deposito reembolsable (en sitio)</span>
+                        <span th:text="${@fmt.moneda(base.depositoGarantia)}">₡5,000</span></div>
+                    <div class="cl-total mt-2"><span th:text="#{insumos.total}">Total</span>
+                        <span class="monto" id="resTotal" th:text="${@fmt.moneda(base.total)}">₡15,000</span></div>
+
+                    <button class="btn btn-cl w-100 mt-3 py-2" type="submit"><span th:text="#{insumos.continuar}">Continuar al pago</span> <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                    <a class="btn btn-outline-cl w-100 mt-2" th:href="@{/complejos/{id}/disponibilidad(id=${complejo.id}, espacio=${espacio.id}, fecha=${fecha})}" th:text="#{insumos.volver}">Cambiar horario</a>
+                    <p class="small text-muted mt-2 mb-0"><i class="fa-regular fa-clock me-1"></i><span th:text="#{disp.aviso.timer}">15 min</span></p>
+                </div>
+            </aside>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

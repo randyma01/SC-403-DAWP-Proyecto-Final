@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{login.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<main class="container">
+    <div class="cl-auth">
+        <div class="cl-auth-card">
+            <div class="barra"></div>
+            <h1 class="h2" th:text="#{login.titulo}">Ingresar</h1>
+            <p class="text-muted" th:text="#{login.sub}">Accede para reservar y gestionar tus canchas.</p>
+            <div class="alert alert-success" th:if="${exito != null}" th:text="${exito}"></div>
+            <div class="alert alert-danger" th:if="${param.error}" th:text="#{login.error}">Credenciales invalidas</div>
+            <div class="alert alert-info" th:if="${param.logout}" th:text="#{login.salio}">Sesion cerrada</div>
+            <form th:action="@{/login}" method="post" novalidate>
+                <div class="mb-3"><label class="form-label" for="email" th:text="#{registro.email}">Correo</label>
+                    <input class="form-control" type="email" id="email" name="email" required autofocus></div>
+                <div class="mb-3"><label class="form-label" for="password" th:text="#{registro.password}">Contrasena</label>
+                    <input class="form-control" type="password" id="password" name="password" required></div>
+                <button class="btn btn-cl w-100 py-2" type="submit" th:text="#{login.boton}">Ingresar</button>
+            </form>
+            <p class="text-center mt-3 mb-0 small"><span th:text="#{login.sincuenta}">Aun no tienes cuenta?</span>
+                <a th:href="@{/registro}" th:text="#{nav.registro}">Registrarse</a></p>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

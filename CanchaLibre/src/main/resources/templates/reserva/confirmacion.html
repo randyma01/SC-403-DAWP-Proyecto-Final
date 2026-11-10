@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{conf.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<section class="cl-banda">
+    <div class="container d-flex align-items-center gap-3 py-3">
+        <div class="flex-grow-1"><small th:text="#{conf.kicker}">LISTO</small><h1 th:text="#{conf.encabezado}">Reserva recibida</h1></div>
+        <div class="cl-stepper text-white">
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.horario}">Horario</span></span>
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.insumos}">Insumos</span></span>
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.pago}">Pago</span></span>
+            <span class="activo"><b>4</b><span th:text="#{paso.confirmacion}">Confirmacion</span></span>
+        </div>
+    </div>
+</section>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="cl-confirmacion d-flex gap-3 align-items-center mb-4">
+                <span class="cl-check"><i class="fa-solid fa-check"></i></span>
+                <div>
+                    <h2 class="h4 mb-1" th:text="#{conf.mensaje.titulo}">Recibimos tu comprobante</h2>
+                    <p class="mb-0" th:text="#{conf.mensaje.texto}">El complejo verificara tu pago y recibiras una notificacion con el resultado.</p>
+                </div>
+            </div>
+
+            <div class="cl-ticket mb-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div><div class="small text-muted" th:text="#{conf.codigo}">Codigo de reserva</div>
+                        <div class="codigo" th:text="${reserva.codigo}">CL-000001</div></div>
+                    <span th:replace="~{fragments/estado :: badge(${reserva.estado})}"></span>
+                </div>
+                <hr>
+                <dl class="row mb-0 small">
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.complejo}">Complejo</dt><dd class="col-8" th:text="${reserva.espacio.complejo.nombre}">Complejo</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.espacio}">Espacio</dt><dd class="col-8" th:text="${reserva.espacio.nombre}">Cancha</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.fecha}">Fecha</dt><dd class="col-8 text-capitalize" th:text="${@fmt.fechaLarga(reserva.fecha)}">Fecha</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.horario}">Horario</dt><dd class="col-8" th:text="${@fmt.rango(reserva.horaInicio, reserva.horaFin)}">18:00</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.ubicacion}">Ubicacion</dt><dd class="col-8" th:text="${reserva.espacio.complejo.direccion}">Direccion</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.referencia}">Referencia</dt><dd class="col-8" th:text="${reserva.referenciaBancaria != null ? reserva.referenciaBancaria : '-'}">-</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.total}">Total</dt><dd class="col-8 fw-bold" th:text="${@fmt.moneda(reserva.total)}">₡18,500</dd>
+                </dl>
+                <div class="cl-barcode mt-3"></div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-cl" th:href="@{/reservas/{c}/comprobante.pdf(c=${reserva.codigo})}"><i class="fa-solid fa-file-pdf me-1"></i><span th:text="#{conf.descargar}">Descargar comprobante</span></a>
+                <a class="btn btn-outline-cl" th:href="@{/reservas/{c}(c=${reserva.codigo})}" th:text="#{cuenta.detalle}">Ver detalle</a>
+                <a class="btn btn-outline-cl" th:href="@{/}" th:text="#{conf.otra}">Reservar otra cancha</a>
+            </div>
+        </div>
+
+        <aside class="col-lg-5">
+            <h2 class="h5" th:text="#{nav.misreservas}">Mis reservas</h2>
+            <div th:replace="~{cuenta/fragmentos :: lista(${reservas})}"></div>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

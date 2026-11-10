@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{error.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<main class="container py-5 text-center">
+    <i class="fa-regular fa-circle-xmark fa-3x text-muted mb-3"></i>
+    <h1 class="h2" th:text="#{error.titulo}">Algo salio mal</h1>
+    <p class="text-muted" th:text="${mensajeError != null} ? ${mensajeError} : #{error.generico}">Ocurrio un error inesperado.</p>
+    <a class="btn btn-cl" th:href="@{/}" th:text="#{error.volver}">Volver al inicio</a>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

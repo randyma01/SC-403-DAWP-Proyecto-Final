@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${reserva.codigo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<main class="container py-4">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a th:href="@{/mis-reservas}" th:text="#{nav.misreservas}">Mis reservas</a></li>
+        <li class="breadcrumb-item active" th:text="${reserva.codigo}">CL-0001</li></ol></nav>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="cl-panel mb-3">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-start">
+                    <div><div class="small text-muted" th:text="#{conf.codigo}">Codigo</div>
+                        <h1 class="mb-0" style="font-size:2rem" th:text="${reserva.codigo}">CL-0001</h1></div>
+                    <span th:replace="~{fragments/estado :: badge(${reserva.estado})}"></span>
+                </div>
+                <hr>
+                <dl class="row mb-0">
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.complejo}">Complejo</dt><dd class="col-8"><a th:href="@{/complejos/{id}(id=${reserva.espacio.complejo.id})}" th:text="${reserva.espacio.complejo.nombre}">Complejo</a></dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.espacio}">Espacio</dt><dd class="col-8" th:text="${reserva.espacio.nombre}">Cancha</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.fecha}">Fecha</dt><dd class="col-8 text-capitalize" th:text="${@fmt.fechaLarga(reserva.fecha)}">Fecha</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.horario}">Horario</dt><dd class="col-8" th:text="${@fmt.rango(reserva.horaInicio, reserva.horaFin)}">18:00</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.ubicacion}">Ubicacion</dt><dd class="col-8" th:text="${reserva.espacio.complejo.direccion}">Direccion</dd>
+                    <dt class="col-4 fw-normal text-muted" th:text="#{pdf.referencia}">Referencia</dt><dd class="col-8" th:text="${reserva.referenciaBancaria != null ? reserva.referenciaBancaria : '-'}">-</dd>
+                </dl>
+                <div class="alert alert-danger mt-3 mb-0" th:if="${reserva.estado.name() == 'RECHAZADA' and reserva.motivoRechazo != null}">
+                    <b th:text="#{detalle.reserva.motivo}">Motivo del rechazo:</b> <span th:text="${reserva.motivoRechazo}"></span></div>
+            </div>
+
+            <div class="cl-panel mb-3">
+                <h2 class="h5" th:text="#{pdf.desglose}">Desglose</h2>
+                <div class="cl-linea"><span th:text="${reserva.nocturno} ? #{insumos.pista.nocturna} : #{insumos.pista.diurna}">Alquiler</span><b th:text="${@fmt.moneda(reserva.subtotalPista)}">₡15,000</b></div>
+                <div class="cl-linea" th:each="i : ${reserva.insumos}"><span th:text="${i.cantidad + ' x ' + i.nombreInsumo}">1 x Balon</span><b th:text="${@fmt.moneda(i.subtotal)}">₡1,000</b></div>
+                <hr>
+                <div class="cl-linea small text-muted"><span th:text="#{insumos.iva.incluido(${reserva.espacio.complejo.porcentajeIva.intValue()})}">IVA incluido</span><span th:text="${@fmt.moneda(reserva.impuesto)}">₡2,128</span></div>
+                <div class="cl-linea small text-muted" th:if="${reserva.depositoGarantia.signum() > 0}"><span th:text="#{pdf.deposito}">Deposito</span><span th:text="${@fmt.moneda(reserva.depositoGarantia)}">₡5,000</span></div>
+                <div class="cl-total mt-2"><span th:text="#{insumos.total}">Total</span><span class="monto" th:text="${@fmt.moneda(reserva.total)}">₡18,500</span></div>
+            </div>
+
+            <div class="cl-panel" th:if="${reserva.tieneComprobante}">
+                <h2 class="h5" th:text="#{detalle.reserva.comprobante}">Comprobante enviado</h2>
+                <a th:href="${reserva.comprobanteUrl}" target="_blank" rel="noopener" th:if="${reserva.comprobanteEsPdf}"><i class="fa-solid fa-file-pdf me-1"></i><span th:text="${reserva.comprobanteNombre}">archivo.pdf</span></a>
+                <a th:href="${reserva.comprobanteUrl}" target="_blank" rel="noopener" th:unless="${reserva.comprobanteEsPdf}"><img class="cl-comprobante-img" th:src="${reserva.comprobanteUrl}" th:alt="${reserva.comprobanteNombre}"></a>
+            </div>
+        </div>
+
+        <aside class="col-lg-5">
+            <div class="cl-panel mb-3">
+                <h2 class="h5" th:text="#{detalle.reserva.acciones}">Acciones</h2>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-lime" th:if="${reserva.estado.name() == 'PENDIENTE_PAGO'}" th:href="@{/reservas/{c}/pago(c=${reserva.codigo})}" th:text="#{cuenta.pagar}">Pagar</a>
+                    <a class="btn btn-cl" th:href="@{/reservas/{c}/comprobante.pdf(c=${reserva.codigo})}"><i class="fa-solid fa-file-pdf me-1"></i><span th:text="#{conf.descargar}">Descargar</span></a>
+                    <form th:if="${reserva.cancelable}" th:action="@{/reservas/{c}/cancelar(c=${reserva.codigo})}" method="post" data-confirmar="cancelar">
+                        <button type="submit" class="btn btn-outline-danger-cl w-100" th:text="#{pago.cancelar}">Cancelar reserva</button></form>
+                    <a class="btn btn-outline-cl" th:href="@{/mis-reservas}" th:text="#{insumos.volver.reservas}">Volver</a>
+                </div>
+            </div>
+            <div class="cl-panel">
+                <h2 class="h5" th:text="#{detalle.reserva.historial}">Historial</h2>
+                <ul class="cl-historial">
+                    <li th:each="t : ${historial}">
+                        <div class="fw-medium" th:text="#{${'transaccion.' + t.tipo.name()}}">Evento</div>
+                        <div class="small text-muted" th:text="${@fmt.fechaHora(t.creadoEn)}">fecha</div>
+                        <div class="small" th:if="${t.detalle != null and !t.detalle.isBlank()}" th:text="${t.detalle}"></div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

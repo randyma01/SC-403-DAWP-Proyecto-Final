@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{pago.titulo})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<section class="cl-banda">
+    <div class="container d-flex align-items-center gap-3 py-3">
+        <div class="flex-grow-1">
+            <small th:text="#{pago.kicker}">ULTIMO PASO</small>
+            <h1 th:text="#{pago.encabezado}">Realiza tu pago</h1>
+            <div class="meta"><span th:text="${reserva.espacio.nombre + ' - ' + complejo.nombre}">Cancha</span>
+                <span th:text="'#' + ${reserva.codigo}">#CL-0001</span></div>
+        </div>
+        <div class="cl-stepper text-white">
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.horario}">Horario</span></span>
+            <span class="hecho"><b><i class="fa-solid fa-check"></i></b><span th:text="#{paso.insumos}">Insumos</span></span>
+            <span class="activo"><b>3</b><span th:text="#{paso.pago}">Pago</span></span>
+            <span><b>4</b><span th:text="#{paso.confirmacion}">Confirmacion</span></span>
+        </div>
+    </div>
+</section>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <!-- Temporizador -->
+            <div class="cl-timer d-flex align-items-center gap-3 mb-4" id="timer"
+                 th:attr="data-restante=${restanteSegundos}, data-total=${totalSegundos}, data-destino=@{/mis-reservas}">
+                <i class="fa-regular fa-clock fa-2x"></i>
+                <div class="flex-grow-1">
+                    <div class="fw-bold" th:text="#{pago.timer.titulo}">Tu espacio esta apartado</div>
+                    <div class="small" th:text="#{pago.timer.texto}">Sube tu comprobante antes de que termine el tiempo.</div>
+                    <div class="progress mt-2" style="height:6px"><div class="progress-bar bg-success" id="timerBarra" style="width:100%"></div></div>
+                </div>
+                <div class="reloj" id="timerReloj">15:00</div>
+            </div>
+
+            <div class="cl-panel mb-4">
+                <div class="cl-paso mb-3"><span class="num">1</span>
+                    <div class="flex-grow-1">
+                        <h2 class="h5" th:text="#{pago.paso1.titulo}">Realiza la transferencia</h2>
+                        <p class="text-muted small" th:text="#{pago.paso1.texto}">Transfiere el monto exacto a la cuenta del complejo.</p>
+                        <div class="row g-2">
+                            <div class="col-md-6"><div class="cl-panel py-2"><div class="small text-muted" th:text="#{pago.banco}">Banco</div><div class="fw-bold" th:text="${complejo.banco}">BAC</div></div></div>
+                            <div class="col-md-6"><div class="cl-panel py-2"><div class="small text-muted" th:text="#{pago.titular}">Titular</div><div class="fw-bold" th:text="${complejo.titular}">Titular</div></div></div>
+                            <div class="col-md-8"><div class="cl-panel py-2 d-flex justify-content-between align-items-center">
+                                <div><div class="small text-muted">IBAN</div><div class="fw-bold" id="ibanTexto" th:text="${complejo.iban}">CR00000000000000000000</div></div>
+                                <button type="button" class="btn btn-outline-cl btn-sm" id="btnCopiar" data-copiar="#ibanTexto"><i class="fa-regular fa-copy me-1"></i><span th:text="#{pago.copiar}">Copiar</span></button></div></div>
+                            <div class="col-md-4"><div class="cl-panel py-2"><div class="small text-muted" th:text="#{pago.monto}">Monto</div><div class="fw-bold fs-5" th:text="${@fmt.moneda(reserva.total)}">₡18,500</div></div></div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <form th:action="@{/reservas/{c}/pago(c=${reserva.codigo})}" method="post" enctype="multipart/form-data" id="formPago">
+                    <div class="cl-paso"><span class="num">2</span>
+                        <div class="flex-grow-1">
+                            <h2 class="h5" th:text="#{pago.paso2.titulo}">Sube tu comprobante</h2>
+                            <div class="cl-dropzone mb-3" id="dropzone">
+                                <i class="fa-solid fa-cloud-arrow-up fa-2x text-muted"></i>
+                                <div class="mt-2" th:text="#{pago.drop.texto}">Arrastra tu comprobante aqui o haz clic</div>
+                                <div class="small text-muted" th:text="#{pago.drop.formatos}">JPG, PNG o PDF. Maximo 5 MB.</div>
+                                <div class="fw-bold mt-2" id="archivoNombre"></div>
+                                <input type="file" name="comprobante" id="comprobante" accept="image/jpeg,image/png,application/pdf" class="d-none">
+                            </div>
+                            <label class="form-label" for="referencia" th:text="#{pago.referencia}">Numero de referencia</label>
+                            <input type="text" class="form-control mb-3" id="referencia" name="referencia" maxlength="60" th:placeholder="#{pago.referencia.ph}">
+                            <button type="submit" class="btn btn-cl py-2 px-4" th:text="#{pago.enviar}">Enviar comprobante</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <aside class="col-lg-4">
+            <div class="cl-panel cl-resumen">
+                <h2 class="h5" th:text="#{insumos.resumen}">Resumen</h2>
+                <div class="small text-muted mb-2">
+                    <div th:text="${reserva.espacio.nombre}">Cancha</div>
+                    <div class="text-capitalize" th:text="${@fmt.fechaLarga(reserva.fecha) + ', ' + @fmt.rango(reserva.horaInicio, reserva.horaFin)}">Fecha</div>
+                </div>
+                <hr>
+                <div class="cl-linea"><span th:text="${reserva.nocturno} ? #{insumos.pista.nocturna} : #{insumos.pista.diurna}">Alquiler</span><b th:text="${@fmt.moneda(reserva.subtotalPista)}">₡15,000</b></div>
+                <div class="cl-linea" th:each="i : ${reserva.insumos}"><span th:text="${i.cantidad + ' x ' + i.nombreInsumo}">1 x Balon</span><b th:text="${@fmt.moneda(i.subtotal)}">₡1,000</b></div>
+                <hr>
+                <div class="cl-linea small text-muted"><span th:text="#{insumos.iva.incluido(${complejo.porcentajeIva.intValue()})}">IVA incluido</span><span th:text="${@fmt.moneda(reserva.impuesto)}">₡2,128</span></div>
+                <div class="cl-total mt-2"><span th:text="#{insumos.total}">Total</span><span class="monto" th:text="${@fmt.moneda(reserva.total)}">₡18,500</span></div>
+                <form th:action="@{/reservas/{c}/cancelar(c=${reserva.codigo})}" method="post" class="mt-3" data-confirmar="cancelar.confirmar">
+                    <button type="submit" class="btn btn-outline-danger-cl w-100" th:text="#{pago.cancelar}">Cancelar reserva</button>
+                </form>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

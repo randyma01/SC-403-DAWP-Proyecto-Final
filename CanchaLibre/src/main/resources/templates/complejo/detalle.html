@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${complejo.nombre})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<main class="container py-4">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{nav.inicio}">Inicio</a></li>
+        <li class="breadcrumb-item active" th:text="${complejo.nombre}">Complejo</li>
+    </ol></nav>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <!-- Galeria -->
+            <div class="cl-galeria-principal" id="galeria" th:attr="data-total=${#lists.size(imagenes)}">
+                <img id="galeriaImg" th:src="${imagenes[0]}" th:alt="${espacio.nombre}">
+                <button type="button" class="nav-btn" style="left:10px" data-galeria="-1" aria-label="prev"><i class="fa-solid fa-chevron-left"></i></button>
+                <button type="button" class="nav-btn" style="right:10px" data-galeria="1" aria-label="next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="cl-miniaturas">
+                <img th:each="u, st : ${imagenes}" th:src="${u}" th:alt="${espacio.nombre}" th:classappend="${st.first} ? 'activa'" th:attr="data-idx=${st.index}">
+            </div>
+
+            <div class="mt-4">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h1 class="mb-1" style="font-size:2.1rem" th:text="${complejo.nombre}">Complejo</h1>
+                        <div class="text-muted"><i class="fa-solid fa-location-dot me-1"></i><span th:text="${complejo.direccion + ', ' + complejo.canton + ', ' + complejo.provincia}">Direccion</span></div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge text-bg-dark" th:text="#{${'tipo.' + complejo.tipoAdministracion.name()}}">Privado</span>
+                        <div class="cl-rating mt-1" th:if="${complejo.numResenas > 0}"><i class="fa-solid fa-star"></i>
+                            <b th:text="${#numbers.formatDecimal(complejo.calificacion, 1, 1, 'POINT')}">4.5</b>
+                            <span class="text-muted small" th:text="'(' + ${complejo.numResenas} + ')'"></span></div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs mt-3" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDesc" type="button" th:text="#{detalle.tab.descripcion}">Descripcion</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabServ" type="button" th:text="#{detalle.tab.servicios}">Servicios</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabReg" type="button" th:text="#{detalle.tab.reglamento}">Reglamento</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabIns" type="button" th:text="#{detalle.tab.insumos}">Insumos</button></li>
+                </ul>
+                <div class="tab-content pt-3">
+                    <div class="tab-pane fade show active" id="tabDesc">
+                        <p th:text="${espacio.descripcion != null ? espacio.descripcion : complejo.descripcion}">Descripcion</p>
+                        <div class="row g-2 small">
+                            <div class="col-6 col-md-3"><div class="cl-tile"><i class="fa-solid fa-layer-group"></i><span th:text="#{${'superficie.' + espacio.superficie.name()}}">Cesped</span></div></div>
+                            <div class="col-6 col-md-3"><div class="cl-tile"><i class="fa-solid fa-users"></i><span th:text="#{detalle.capacidad(${espacio.capacidad})}">10 jugadores</span></div></div>
+                            <div class="col-6 col-md-3" th:if="${espacio.medidas != null}"><div class="cl-tile"><i class="fa-solid fa-ruler-combined"></i><span th:text="${espacio.medidas}">40x20</span></div></div>
+                            <div class="col-6 col-md-3"><div class="cl-tile"><i class="fa-solid fa-warehouse"></i><span th:text="${espacio.techada} ? #{filtros.techo.si} : #{filtros.techo.no}">Techada</span></div></div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tabServ">
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3"><div class="cl-tile" th:classappend="${!complejo.parqueo} ? 'no'"><i class="fa-solid fa-square-parking"></i><span th:text="#{amenidad.parqueo}">Parqueo</span></div></div>
+                            <div class="col-6 col-md-3"><div class="cl-tile" th:classappend="${!complejo.vestidores} ? 'no'"><i class="fa-solid fa-shower"></i><span th:text="#{amenidad.vestidores}">Vestidores</span></div></div>
+                            <div class="col-6 col-md-3"><div class="cl-tile" th:classappend="${!complejo.soda} ? 'no'"><i class="fa-solid fa-utensils"></i><span th:text="#{amenidad.soda}">Soda</span></div></div>
+                            <div class="col-6 col-md-3"><div class="cl-tile" th:classappend="${!complejo.iluminacionNocturna} ? 'no'"><i class="fa-regular fa-lightbulb"></i><span th:text="#{amenidad.iluminacion}">Iluminacion</span></div></div>
+                        </div>
+                        <p class="small text-muted mt-3 mb-0"><i class="fa-regular fa-clock me-1"></i>
+                            <span th:text="#{detalle.horario(${@fmt.hora(complejo.horaApertura)}, ${@fmt.hora(complejo.horaCierre)})}">06:00 - 23:00</span></p>
+                    </div>
+                    <div class="tab-pane fade" id="tabReg">
+                        <p th:text="${espacio.reglamento != null and !espacio.reglamento.isBlank() ? espacio.reglamento : #messages.msg('detalle.reglamento.vacio')}">Reglamento</p>
+                    </div>
+                    <div class="tab-pane fade" id="tabIns">
+                        <div th:if="${#lists.isEmpty(insumos)}" class="text-muted" th:text="#{detalle.insumos.vacio}">Sin insumos</div>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-4" th:each="v : ${insumos}">
+                                <div class="cl-insumo" style="cursor:default">
+                                    <div class="icono"><i class="fa-solid" th:classappend="${v.insumo.categoria.name() == 'SERVICIO'} ? 'fa-bell-concierge' : 'fa-basketball'"></i></div>
+                                    <div class="fw-medium small" th:text="${v.insumo.nombre}">Balon</div>
+                                    <div class="precio" th:text="${@fmt.moneda(v.insumo.precio)}">₡1,000</div>
+                                    <div class="small text-muted" th:text="${v.insumo.unidad}">unidad</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de reserva -->
+        <aside class="col-lg-5">
+            <div class="cl-panel cl-resumen">
+                <h2 class="h4 mb-3" th:text="#{detalle.reservar.titulo}">Reserva tu espacio</h2>
+                <div class="d-grid gap-2 mb-3">
+                    <a class="cl-espacio-card" th:each="e : ${espacios}" th:classappend="${e.id == espacio.id} ? 'activa'"
+                       th:href="@{/complejos/{id}(id=${complejo.id}, espacio=${e.id}, fecha=${fecha})}">
+                        <img th:src="${e.imagenUrl != null ? e.imagenUrl : '/img/placeholders/futbol-1.svg'}" th:alt="${e.nombre}">
+                        <div class="flex-grow-1">
+                            <div class="fw-medium" th:text="${e.nombre}">Cancha 1</div>
+                            <div class="small text-muted" th:text="${e.disciplina.nombre}">Futbol 5</div>
+                        </div>
+                        <div class="text-end"><strong th:text="${@fmt.moneda(e.tarifaDiurna)}">₡12,000</strong>
+                            <div class="small text-muted" th:text="#{${'tarifa.' + e.tipoTarifa.name()}}">por hora</div></div>
+                    </a>
+                </div>
+                <dl class="row small mb-2">
+                    <dt class="col-7 fw-normal text-muted" th:text="#{detalle.tarifa.diurna}">Tarifa diurna</dt>
+                    <dd class="col-5 text-end mb-1" th:text="${@fmt.moneda(espacio.tarifaDiurna)}">₡12,000</dd>
+                    <dt class="col-7 fw-normal text-muted" th:text="#{detalle.tarifa.nocturna(${@fmt.hora(complejo.horaInicioNocturno)})}">Tarifa nocturna</dt>
+                    <dd class="col-5 text-end mb-1" th:text="${@fmt.moneda(espacio.tarifaNocturna)}">₡15,000</dd>
+                    <dt class="col-7 fw-normal text-muted" th:if="${espacio.requiereDeposito}" th:text="#{detalle.deposito}">Deposito</dt>
+                    <dd class="col-5 text-end mb-1" th:if="${espacio.requiereDeposito}" th:text="${@fmt.moneda(espacio.depositoGarantia)}">₡5,000</dd>
+                </dl>
+                <p class="small text-muted" th:text="#{detalle.iva.nota(${complejo.porcentajeIva.intValue()})}">Precios con IVA incluido</p>
+                <a class="btn btn-lime w-100 py-2" th:href="@{/complejos/{id}/disponibilidad(id=${complejo.id}, espacio=${espacio.id}, fecha=${fecha})}">
+                    <i class="fa-regular fa-calendar-check me-1"></i><span th:text="#{detalle.ver.disponibilidad}">Ver disponibilidad</span></a>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

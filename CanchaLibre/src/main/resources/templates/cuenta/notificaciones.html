@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{nav.notificaciones})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: mensajes}"></div>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-3"><div th:replace="~{cuenta/fragmentos :: lateral('notificaciones')}"></div></div>
+        <section class="col-lg-9">
+            <h1 class="cl-section-title" th:text="#{nav.notificaciones}">Notificaciones</h1>
+            <div class="cl-panel text-center py-5 text-muted" th:if="${#lists.isEmpty(lista)}">
+                <i class="fa-regular fa-bell-slash fa-2x mb-2"></i><div th:text="#{notif.vacio}">No tienes notificaciones</div></div>
+            <div class="d-grid gap-2">
+                <div class="cl-panel" th:each="n : ${lista}">
+                    <div class="d-flex justify-content-between gap-2 flex-wrap">
+                        <div><div class="fw-bold" th:text="${n.titulo}">Titulo</div>
+                            <div th:text="${n.mensaje}">Mensaje</div></div>
+                        <div class="text-end small text-muted"><div th:text="${@fmt.fechaHora(n.creadoEn)}">fecha</div>
+                            <a th:if="${n.reserva != null}" th:href="@{/reservas/{c}(c=${n.reserva.codigo})}" th:text="${n.reserva.codigo}">CL-0001</a></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

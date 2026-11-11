@@ -1,0 +1,11 @@
+target/
+secrets.properties
+*.private.properties
+src/main/resources/firebase/*.json
+uploads/
+.git
+.gitignore
+HELP.md
+nbactions.xml
+*.iml
+.DS_Store
